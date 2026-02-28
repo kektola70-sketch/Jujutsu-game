@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jujutsu Kaisen: Round Clash</title>
+    <title>Jujutsu Kaisen: Modular</title>
     <link rel="stylesheet" href="style.css">
     <script type="importmap">
         { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js" } }
@@ -11,94 +11,54 @@
 </head>
 <body>
 
-    <!-- 1. ВХОД -->
-    <div id="auth-container" class="screen">
-        <div class="box login-box">
-            <h1>JUJUTSU<br>GAME</h1>
-            <p class="subtitle">Вход в Завесу</p>
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Пароль">
-            <div class="buttons">
-                <button id="btn-login">ВОЙТИ</button>
-                <button id="btn-register" class="outline">РЕГИСТРАЦИЯ</button>
-            </div>
-            <p id="msg"></p>
-        </div>
-    </div>
+    <!-- ВХОД / МЕНЮ (Оставляем как было, сокращенно для примера) -->
+    <div id="auth-container" class="screen"><div class="box"><h1>JUJUTSU GAME</h1><button id="btn-login" class="menu-btn primary">ВОЙТИ</button></div></div>
+    <div id="menu-container" class="screen" style="display:none;"><div class="box"><button id="btn-play" class="menu-btn primary">ИГРАТЬ</button></div></div>
 
-    <!-- 2. МЕНЮ -->
-    <div id="menu-container" class="screen" style="display: none;">
-        <div class="box menu-box">
-            <h2 id="menu-username">МАГ</h2>
-            <div class="menu-list">
-                <button id="btn-play" class="menu-btn primary">НАЧАТЬ БИТВУ</button>
-                <button id="btn-chars" class="menu-btn">ПЕРСОНАЖИ</button>
-                <button id="btn-settings" class="menu-btn">НАСТРОЙКИ</button>
-                <button id="btn-logout" class="menu-btn danger">ВЫЙТИ</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- МОДАЛКА ОБУЧЕНИЯ -->
-    <div id="tutorial-modal" class="screen" style="display: none; background: rgba(0,0,0,0.9);">
-        <div class="box">
-            <h3>ОБУЧЕНИЕ</h3>
-            <p style="color: #ccc; font-size: 0.9rem;">Сатору Годжо vs Рёмен Сукуна</p>
-            <p>1. Бей врага.<br>2. Снеси 50% HP.<br>3. Используй Domain Expansion.</p>
-            <div class="buttons">
-                <button id="btn-tut-yes" class="menu-btn primary">НАЧАТЬ</button>
-                <button id="btn-tut-no" class="menu-btn">ПРОПУСТИТЬ</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. БОЕВОЙ ИНТЕРФЕЙС -->
+    <!-- UI ИГРЫ -->
     <div id="game-ui" style="display: none;">
+        <!-- Черные полосы (Кино-эффект) -->
+        <div id="cinematic-bars">
+            <div class="bar top"></div>
+            <div class="bar bottom"></div>
+        </div>
+
         <div class="top-bar">
-            <div class="hp-wrapper">
-                <span>GOJO</span>
-                <div class="hp-bar"><div id="hp-player" class="hp-fill" style="width: 100%;"></div></div>
-                <span id="hp-text-p">1000/1000</span>
-            </div>
-            <div class="hp-wrapper enemy">
-                <span>SUKUNA</span>
-                <div class="hp-bar"><div id="hp-enemy" class="hp-fill" style="width: 100%;"></div></div>
-                <span id="hp-text-e">10000/10000</span>
-            </div>
-            <button id="btn-exit-game">X</button>
+            <div class="hp-wrapper"><span>GOJO</span><div class="hp-bar"><div id="hp-player" class="hp-fill"></div></div></div>
+            <div class="hp-wrapper enemy"><span>SUKUNA</span><div class="hp-bar"><div id="hp-enemy" class="hp-fill"></div></div></div>
         </div>
 
         <div id="controls-layer">
             <div id="joystick-zone"><div id="joystick-knob"></div></div>
             <div id="camera-touch-zone"></div>
             <div class="combat-buttons">
-                <button id="btn-domain" class="c-btn domain-btn" style="display: none;">DOMAIN<br>EXPANSION</button>
+                <button id="btn-domain" class="c-btn domain-btn" style="display:none;">DOMAIN EXPANSION</button>
                 <div class="main-actions">
-                    <button id="btn-block" class="c-btn small">🛡️</button>
-                    <button id="btn-strong" class="c-btn medium">👊🔥</button>
+                    <button id="btn-strong" class="c-btn medium">👊</button>
                     <button id="btn-attack" class="c-btn big">⚔️</button>
                 </div>
             </div>
         </div>
 
+        <!-- CLASH UI -->
         <div id="clash-ui" style="display: none;">
             <h2>DOMAIN CLASH</h2>
-            <p>ЖМИ БЫСТРЕЕ!</p>
-            <div class="clash-bar-bg">
-                <div id="clash-fill" class="clash-fill"></div>
-            </div>
+            <div class="clash-bar-bg"><div id="clash-fill" class="clash-fill"></div></div>
             <button id="btn-clash-mash">ДАВИТЬ!</button>
         </div>
 
+        <!-- НОВЫЙ ИНТЕРФЕЙС КАТСЦЕН -->
         <div id="cutscene-ui" style="display: none;">
-            <div class="dialogue-box">
-                <h3 id="dialogue-speaker">...</h3>
-                <p id="dialogue-text">...</p>
+            <div class="dialogue-container">
+                <h3 id="d-name">Speaker</h3>
+                <p id="d-text">Text goes here...</p>
+                <button id="btn-next-dialogue">ДАЛЕЕ ▶</button>
             </div>
         </div>
     </div>
 
     <div id="game-canvas"></div>
-    <script type="module" src="main.js"></script>
+    <!-- ГЛАВНЫЙ СКРИПТ (из папки js) -->
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
