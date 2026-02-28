@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Jujutsu Kaisen: Cursed Clash</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Карта импортов: указывает браузеру, откуда качать библиотеки -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
+                "firebase/analytics": "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <!-- UI: ЭКРАН ВХОДА (ЛОББИ) -->
+    <div id="auth-container">
+        <div class="curtain-effect"></div>
+        <div class="login-box">
+            <h1>JUJUTSU<br>GAME</h1>
+            <p class="subtitle">Вход в Завесу</p>
+            
+            <input type="email" id="email" placeholder="Почта мага">
+            <input type="password" id="password" placeholder="Пароль">
+            
+            <div class="buttons">
+                <button id="btn-login">ВОЙТИ</button>
+                <button id="btn-register" class="outline">СТАТЬ МАГОМ</button>
+            </div>
+            
+            <p id="msg"></p>
+        </div>
+    </div>
+
+    <!-- UI: ИГРОВОЙ ИНТЕРФЕЙС (HUD) -->
+    <div id="game-ui" style="display: none;">
+        <div class="top-bar">
+            <div class="player-info">
+                <span id="user-display">Маг</span>
+                <div class="hp-bar"><div class="hp-fill"></div></div>
+            </div>
+            <button id="btn-logout">Покинуть бой</button>
+        </div>
+        <!-- Джойстик добавим позже -->
+    </div>
+
+    <!-- СЮДА ДОБАВЛЯЕТСЯ 3D МИР -->
+    <div id="game-canvas"></div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
