@@ -22,93 +22,137 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// 2. DOM ЭЛЕМЕНТЫ
+// 2. DOM ELEMENTY
 const dom = {
-    // Экраны
-    authScreen: document.getElementById('auth-container'),
-    menuScreen: document.getElementById('menu-container'),
-    gameUi: document.getElementById('game-ui'),
-    gameCanvas: document.getElementById('game-canvas'),
-    
-    // Auth поля
-    email: document.getElementById('email'),
-    pass: document.getElementById('password'),
-    msg: document.getElementById('msg'),
-    
-    // Меню элементы
-    menuUsername: document.getElementById('menu-username'),
-    
-    // Кнопки
-    btnLogin: document.getElementById('btn-login'),
-    btnReg: document.getElementById('btn-register'),
-    btnPlay: document.getElementById('btn-play'),
-    btnLogout: document.getElementById('btn-logout'),
-    btnExitGame: document.getElementById('btn-exit-game')
+    screens: {
+        auth: document.getElementById('auth-container'),
+        menu: document.getElementById('menu-container'),
+        settings: document.getElementById('settings-container'),
+        about: document.getElementById('about-container'),
+        game: document.getElementById('game-ui'),
+        canvas: document.getElementById('game-canvas')
+    },
+    auth: {
+        email: document.getElementById('email'),
+        pass: document.getElementById('password'),
+        msg: document.getElementById('msg'),
+        btnLogin: document.getElementById('btn-login'),
+        btnReg: document.getElementById('btn-register')
+    },
+    menu: {
+        username: document.getElementById('menu-username'),
+        btnPlay: document.getElementById('btn-play'),
+        btnSettings: document.getElementById('btn-settings'),
+        btnAbout: document.getElementById('btn-about'),
+        btnLogout: document.getElementById('btn-logout')
+    },
+    settings: {
+        slider: document.getElementById('sens-slider'),
+        shadows: document.getElementById('shadows-check'),
+        btnSave: document.getElementById('btn-save-settings')
+    },
+    about: {
+        btnBack: document.getElementById('btn-back-about')
+    },
+    game: {
+        btnExit: document.getElementById('btn-exit-game')
+    }
 };
 
-// 3. ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ЭКРАНОВ
-function showScreen(screenName) {
-    dom.authScreen.style.display = 'none';
-    dom.menuScreen.style.display = 'none';
-    dom.gameUi.style.display = 'none';
-    dom.gameCanvas.style.display = 'none';
+// Переменные настроек
+let gameSettings = {
+    sensitivity: 0.15,
+    shadows: true
+};
 
-    if (screenName === 'auth') dom.authScreen.style.display = 'flex';
-    if (screenName === 'menu') dom.menuScreen.style.display = 'flex';
-    if (screenName === 'game') {
-        dom.gameUi.style.display = 'block';
-        dom.gameCanvas.style.display = 'block';
+// Загрузка настроек при старте
+loadSettings();
+
+// 3. СИСТЕМА ЭКРАНОВ
+function showScreen(name) {
+    // Скрываем всё
+    Object.values(dom.screens).forEach(el => {
+        if(el) el.style.display = 'none';
+    });
+
+    // Показываем нужное
+    if (name === 'game') {
+        dom.screens.game.style.display = 'block';
+        dom.screens.canvas.style.display = 'block';
+    } else {
+        dom.screens[name].style.display = 'flex';
     }
 }
 
-// 4. FIREBASE АВТОРИЗАЦИЯ
-dom.btnReg.addEventListener('click', async () => {
-    try { await createUserWithEmailAndPassword(auth, dom.email.value, dom.pass.value); } 
-    catch (e) { dom.msg.textContent = e.message; dom.msg.style.color = 'red'; }
-});
-
-dom.btnLogin.addEventListener('click', async () => {
-    try { await signInWithEmailAndPassword(auth, dom.email.value, dom.pass.value); } 
-    catch (e) { dom.msg.textContent = "Ошибка входа"; dom.msg.style.color = 'red'; }
-});
-
-dom.btnLogout.addEventListener('click', () => signOut(auth));
-
+// 4. ЛОГИКА АВТОРИЗАЦИИ (Автосохранение)
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Успешный вход -> Идем в МЕНЮ
-        dom.menuUsername.textContent = "Маг: " + (user.email ? user.email.split('@')[0] : "Аноним");
+        // Если вошли - сразу в меню
+        dom.menu.username.textContent = (user.email ? user.email.split('@')[0] : "Маг").toUpperCase();
         showScreen('menu');
     } else {
-        // Выход -> Идем на ВХОД
+        // Если вышли - на экран входа
         showScreen('auth');
         stop3DWorld();
     }
 });
 
-// 5. УПРАВЛЕНИЕ МЕНЮ И ИГРОЙ
-dom.btnPlay.addEventListener('click', () => {
+dom.auth.btnReg.addEventListener('click', async () => {
+    try { await createUserWithEmailAndPassword(auth, dom.auth.email.value, dom.auth.pass.value); } 
+    catch (e) { dom.auth.msg.textContent = e.message; dom.auth.msg.style.color = 'red'; }
+});
+
+dom.auth.btnLogin.addEventListener('click', async () => {
+    try { await signInWithEmailAndPassword(auth, dom.auth.email.value, dom.auth.pass.value); } 
+    catch (e) { dom.auth.msg.textContent = "Ошибка входа"; dom.auth.msg.style.color = 'red'; }
+});
+
+dom.menu.btnLogout.addEventListener('click', () => signOut(auth));
+
+// 5. НАВИГАЦИЯ МЕНЮ
+dom.menu.btnPlay.addEventListener('click', () => {
     showScreen('game');
-    init3DWorld(); // Запускаем движок только здесь
+    init3DWorld();
 });
 
-dom.btnExitGame.addEventListener('click', () => {
-    stop3DWorld(); // Останавливаем движок
-    showScreen('menu'); // Возвращаемся в меню
+dom.menu.btnSettings.addEventListener('click', () => {
+    showScreen('settings');
+    // Устанавливаем текущие значения
+    dom.settings.slider.value = gameSettings.sensitivity * 20; // масштабируем для ползунка
+    dom.settings.shadows.checked = gameSettings.shadows;
 });
 
+dom.menu.btnAbout.addEventListener('click', () => showScreen('about'));
+
+dom.settings.btnSave.addEventListener('click', () => {
+    // Сохраняем настройки
+    gameSettings.sensitivity = dom.settings.slider.value / 20;
+    gameSettings.shadows = dom.settings.shadows.checked;
+    localStorage.setItem('jjk_settings', JSON.stringify(gameSettings));
+    showScreen('menu');
+});
+
+dom.about.btnBack.addEventListener('click', () => showScreen('menu'));
+
+dom.game.btnExit.addEventListener('click', () => {
+    stop3DWorld();
+    showScreen('menu');
+});
+
+function loadSettings() {
+    const saved = localStorage.getItem('jjk_settings');
+    if (saved) {
+        gameSettings = JSON.parse(saved);
+    }
+}
 
 // 6. 3D ДВИЖОК
-let scene, camera, renderer, animationId;
-let player;
+let scene, camera, renderer, animationId, player;
 let moveData = { x: 0, z: 0 };
-
 const joystick = {
     zone: document.getElementById('joystick-zone'),
     knob: document.getElementById('joystick-knob'),
-    active: false,
-    center: { x: 0, y: 0 },
-    touchId: null
+    active: false, center: {x:0, y:0}, touchId: null
 };
 
 function init3DWorld() {
@@ -118,19 +162,24 @@ function init3DWorld() {
     scene.background = new THREE.Color(0x111111);
     scene.fog = new THREE.Fog(0x111111, 5, 30);
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
     camera.position.set(0, 5, 8);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    dom.gameCanvas.appendChild(renderer.domElement);
+    
+    // Применяем настройки графики
+    if (gameSettings.shadows) {
+        renderer.shadowMap.enabled = true;
+    }
 
-    // Освещение
+    dom.screens.canvas.appendChild(renderer.domElement);
+
+    // Свет
     scene.add(new THREE.AmbientLight(0x404040));
     const dirLight = new THREE.DirectionalLight(0xffffff, 1);
     dirLight.position.set(5, 10, 5);
-    dirLight.castShadow = true;
+    if (gameSettings.shadows) dirLight.castShadow = true;
     scene.add(dirLight);
 
     // Пол
@@ -139,16 +188,16 @@ function init3DWorld() {
         new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.8 })
     );
     floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = true;
+    if (gameSettings.shadows) floor.receiveShadow = true;
     scene.add(floor);
 
-    // Персонаж
+    // Игрок
     player = new THREE.Mesh(
         new THREE.BoxGeometry(1, 1.8, 1),
         new THREE.MeshStandardMaterial({ color: 0x9d00ff })
     );
     player.position.y = 0.9;
-    player.castShadow = true;
+    if (gameSettings.shadows) player.castShadow = true;
     scene.add(player);
 
     initJoystickEvents();
@@ -158,99 +207,77 @@ function init3DWorld() {
 function stop3DWorld() {
     if (renderer) {
         cancelAnimationFrame(animationId);
-        if(dom.gameCanvas.contains(renderer.domElement)) {
-            dom.gameCanvas.removeChild(renderer.domElement);
-        }
+        dom.screens.canvas.innerHTML = '';
         renderer = null;
     }
 }
 
 function animate() {
     animationId = requestAnimationFrame(animate);
-
     if (player) {
         if (moveData.x !== 0 || moveData.z !== 0) {
-            const speed = 0.15;
+            // Используем чувствительность из настроек
+            const speed = gameSettings.sensitivity; 
             player.position.x += moveData.x * speed;
             player.position.z += moveData.z * speed;
             player.rotation.y = Math.atan2(moveData.x, moveData.z);
         }
-        
-        // Камера плавно следует
         camera.position.x += (player.position.x - camera.position.x) * 0.1;
         camera.position.z += ((player.position.z + 8) - camera.position.z) * 0.1;
         camera.lookAt(player.position);
     }
-
     renderer.render(scene, camera);
 }
 
-// 7. СОБЫТИЯ ДЖОЙСТИКА
+// Джойстик
 function initJoystickEvents() {
     const zone = joystick.zone;
     const knob = joystick.knob;
 
-    const start = (e) => {
+    const handler = (e, type) => {
         e.preventDefault();
-        const touch = e.changedTouches ? e.changedTouches[0] : e;
-        joystick.active = true;
-        if(e.changedTouches) joystick.touchId = touch.identifier;
+        let touch = e.changedTouches ? e.changedTouches[0] : e;
         
-        const rect = zone.getBoundingClientRect();
-        joystick.center.x = rect.left + rect.width / 2;
-        joystick.center.y = rect.top + rect.height / 2;
-        move(e);
-    };
-
-    const move = (e) => {
-        if (!joystick.active) return;
-        e.preventDefault();
-        let touch = e;
-        if(e.changedTouches) {
-            for(let i=0; i<e.changedTouches.length; i++) {
-                if(e.changedTouches[i].identifier === joystick.touchId) {
-                    touch = e.changedTouches[i]; break;
-                }
+        if (type === 'start') {
+            joystick.active = true;
+            if(e.changedTouches) joystick.touchId = touch.identifier;
+            const r = zone.getBoundingClientRect();
+            joystick.center = { x: r.left + r.width/2, y: r.top + r.height/2 };
+        }
+        
+        if (type === 'move' && joystick.active) {
+            if(e.changedTouches) {
+                for(let i=0; i<e.changedTouches.length; i++) 
+                    if(e.changedTouches[i].identifier === joystick.touchId) touch = e.changedTouches[i];
             }
+            let dx = touch.clientX - joystick.center.x;
+            let dy = touch.clientY - joystick.center.y;
+            const dist = Math.sqrt(dx*dx+dy*dy);
+            const max = 35;
+            if (dist > max) {
+                const a = Math.atan2(dy, dx);
+                dx = Math.cos(a)*max; dy = Math.sin(a)*max;
+            }
+            knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+            moveData.x = dx/max; moveData.z = dy/max;
         }
 
-        const maxDist = 35;
-        let dx = touch.clientX - joystick.center.x;
-        let dy = touch.clientY - joystick.center.y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        
-        if (dist > maxDist) {
-            const angle = Math.atan2(dy, dx);
-            dx = Math.cos(angle) * maxDist;
-            dy = Math.sin(angle) * maxDist;
+        if (type === 'end') {
+            joystick.active = false;
+            moveData = {x:0, z:0};
+            knob.style.transform = `translate(-50%, -50%)`;
         }
-
-        knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-        moveData.x = dx / maxDist;
-        moveData.z = dy / maxDist;
     };
 
-    const end = (e) => {
-        e.preventDefault();
-        joystick.active = false;
-        moveData.x = 0; moveData.z = 0;
-        knob.style.transform = `translate(-50%, -50%)`;
-    };
-
-    zone.addEventListener('touchstart', start, {passive: false});
-    zone.addEventListener('touchmove', move, {passive: false});
-    zone.addEventListener('touchend', end);
-    zone.addEventListener('touchcancel', end);
-    
-    // Для мышки (тесты на ПК)
-    zone.addEventListener('mousedown', start);
-    window.addEventListener('mousemove', move);
-    window.addEventListener('mouseup', end);
+    zone.addEventListener('touchstart', e => handler(e, 'start'), {passive: false});
+    zone.addEventListener('touchmove', e => handler(e, 'move'), {passive: false});
+    zone.addEventListener('touchend', e => handler(e, 'end'));
 }
 
 window.addEventListener('resize', () => {
-    if (!camera || !renderer) return;
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    if(renderer) {
+        camera.aspect = window.innerWidth/window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
 });
