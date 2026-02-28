@@ -18,11 +18,11 @@
 </head>
 <body>
 
-    <!-- 1. ЭКРАН ВХОДА (Auth) -->
-    <div id="auth-container">
-        <div class="login-box">
+    <!-- 1. ВХОД (Auth) -->
+    <div id="auth-container" class="screen">
+        <div class="box login-box">
             <h1>JUJUTSU<br>GAME</h1>
-            <p class="subtitle">Вход в систему</p>
+            <p class="subtitle">Вход в Завесу</p>
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Пароль">
             <div class="buttons">
@@ -34,31 +34,62 @@
     </div>
 
     <!-- 2. ГЛАВНОЕ МЕНЮ (Lobby) -->
-    <div id="menu-container" style="display: none;">
-        <div class="menu-box">
+    <div id="menu-container" class="screen" style="display: none;">
+        <div class="box menu-box">
             <h2 id="menu-username">МАГ</h2>
             <div class="menu-list">
                 <button id="btn-play" class="menu-btn primary">НАЧАТЬ БИТВУ</button>
                 <button id="btn-settings" class="menu-btn">НАСТРОЙКИ</button>
-                <button id="btn-logout" class="menu-btn danger">ВЫЙТИ ИЗ АККАУНТА</button>
+                <button id="btn-about" class="menu-btn">ОБ ИГРЕ</button>
+                <button id="btn-logout" class="menu-btn danger">ВЫЙТИ</button>
             </div>
         </div>
     </div>
 
-    <!-- 3. ИГРОВОЙ ИНТЕРФЕЙС (HUD) -->
+    <!-- 3. НАСТРОЙКИ -->
+    <div id="settings-container" class="screen" style="display: none;">
+        <div class="box settings-box">
+            <h2>НАСТРОЙКИ</h2>
+            
+            <div class="setting-item">
+                <label>Чувствительность:</label>
+                <input type="range" id="sens-slider" min="1" max="10" value="5">
+            </div>
+
+            <div class="setting-item">
+                <label>Графика (Тени):</label>
+                <input type="checkbox" id="shadows-check" checked>
+            </div>
+
+            <button id="btn-save-settings" class="menu-btn primary">СОХРАНИТЬ</button>
+        </div>
+    </div>
+
+    <!-- 4. ОБ ИГРЕ -->
+    <div id="about-container" class="screen" style="display: none;">
+        <div class="box about-box">
+            <h2>О ПРОЕКТЕ</h2>
+            <p>Jujutsu Game 3D</p>
+            <p>Версия: Alpha 0.2</p>
+            <p>Разработано в Acode</p>
+            <p>Движок: Three.js + Firebase</p>
+            <br>
+            <button id="btn-back-about" class="menu-btn">НАЗАД</button>
+        </div>
+    </div>
+
+    <!-- 5. ИГРОВОЙ ИНТЕРФЕЙС (HUD) -->
     <div id="game-ui" style="display: none;">
         <div class="top-bar">
             <div class="hp-bar"><div class="hp-fill"></div></div>
             <button id="btn-exit-game">МЕНЮ</button>
         </div>
-
-        <!-- ДЖОЙСТИК -->
         <div id="joystick-zone">
             <div id="joystick-knob"></div>
         </div>
     </div>
 
-    <!-- 4. 3D МИР -->
+    <!-- 6. 3D МИР -->
     <div id="game-canvas"></div>
 
     <script type="module" src="main.js"></script>
