@@ -2,23 +2,16 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jujutsu Kaisen: Cursed Clash</title>
     <link rel="stylesheet" href="style.css">
-    
     <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
-                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
-            }
-        }
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js" } }
     </script>
 </head>
 <body>
 
-    <!-- 1. ВХОД (Auth) -->
+    <!-- 1. ВХОД -->
     <div id="auth-container" class="screen">
         <div class="box login-box">
             <h1>JUJUTSU<br>GAME</h1>
@@ -33,63 +26,87 @@
         </div>
     </div>
 
-    <!-- 2. ГЛАВНОЕ МЕНЮ (Lobby) -->
+    <!-- 2. МЕНЮ -->
     <div id="menu-container" class="screen" style="display: none;">
         <div class="box menu-box">
             <h2 id="menu-username">МАГ</h2>
             <div class="menu-list">
                 <button id="btn-play" class="menu-btn primary">НАЧАТЬ БИТВУ</button>
+                <button id="btn-chars" class="menu-btn">ПЕРСОНАЖИ</button>
                 <button id="btn-settings" class="menu-btn">НАСТРОЙКИ</button>
-                <button id="btn-about" class="menu-btn">ОБ ИГРЕ</button>
                 <button id="btn-logout" class="menu-btn danger">ВЫЙТИ</button>
             </div>
         </div>
     </div>
 
-    <!-- 3. НАСТРОЙКИ -->
-    <div id="settings-container" class="screen" style="display: none;">
-        <div class="box settings-box">
-            <h2>НАСТРОЙКИ</h2>
-            
-            <div class="setting-item">
-                <label>Чувствительность:</label>
-                <input type="range" id="sens-slider" min="1" max="10" value="5">
+    <!-- МОДАЛКА ОБУЧЕНИЯ -->
+    <div id="tutorial-modal" class="screen" style="display: none; background: rgba(0,0,0,0.8);">
+        <div class="box">
+            <h3>ОБУЧЕНИЕ</h3>
+            <p>Пройти сюжетную битву: <br>Сатору Годжо vs Рёмен Сукуна?</p>
+            <div class="buttons">
+                <button id="btn-tut-yes" class="menu-btn primary">ДА</button>
+                <button id="btn-tut-no" class="menu-btn">НЕТ</button>
             </div>
-
-            <div class="setting-item">
-                <label>Графика (Тени):</label>
-                <input type="checkbox" id="shadows-check" checked>
-            </div>
-
-            <button id="btn-save-settings" class="menu-btn primary">СОХРАНИТЬ</button>
         </div>
     </div>
 
-    <!-- 4. ОБ ИГРЕ -->
-    <div id="about-container" class="screen" style="display: none;">
-        <div class="box about-box">
-            <h2>О ПРОЕКТЕ</h2>
-            <p>Jujutsu Game 3D</p>
-            <p>Версия: Alpha 0.2</p>
-            <p>Разработано в Acode</p>
-            <p>Движок: Three.js + Firebase</p>
-            <br>
-            <button id="btn-back-about" class="menu-btn">НАЗАД</button>
-        </div>
-    </div>
-
-    <!-- 5. ИГРОВОЙ ИНТЕРФЕЙС (HUD) -->
+    <!-- 3. БОЕВОЙ ИНТЕРФЕЙС (HUD) -->
     <div id="game-ui" style="display: none;">
+        <!-- Верхняя панель -->
         <div class="top-bar">
-            <div class="hp-bar"><div class="hp-fill"></div></div>
-            <button id="btn-exit-game">МЕНЮ</button>
+            <div class="hp-wrapper">
+                <span>GOJO</span>
+                <div class="hp-bar"><div id="hp-player" class="hp-fill" style="width: 100%;"></div></div>
+                <span id="hp-text-p">1000/1000</span>
+            </div>
+            <div class="hp-wrapper enemy">
+                <span>SUKUNA</span>
+                <div class="hp-bar"><div id="hp-enemy" class="hp-fill" style="width: 100%;"></div></div>
+                <span id="hp-text-e">10000/10000</span>
+            </div>
+            <button id="btn-exit-game">X</button>
         </div>
-        <div id="joystick-zone">
-            <div id="joystick-knob"></div>
+
+        <!-- Управление -->
+        <div id="controls-layer">
+            <!-- Левая зона (Джойстик) -->
+            <div id="joystick-zone"><div id="joystick-knob"></div></div>
+            
+            <!-- Правая зона (Камера - невидимая) -->
+            <div id="camera-touch-zone"></div>
+
+            <!-- Кнопки боя -->
+            <div class="combat-buttons">
+                <button id="btn-domain" class="c-btn domain-btn" style="display: none;">DOMAIN<br>EXPANSION</button>
+                <div class="main-actions">
+                    <button id="btn-block" class="c-btn small">🛡️</button>
+                    <button id="btn-strong" class="c-btn medium">👊🔥</button>
+                    <button id="btn-attack" class="c-btn big">⚔️</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- БИТВА ДОМЕНОВ (CLASH) -->
+        <div id="clash-ui" style="display: none;">
+            <h2>DOMAIN CLASH</h2>
+            <p>ЖМИ БЫСТРЕЕ!</p>
+            <div class="clash-bar-bg">
+                <div id="clash-fill" class="clash-fill"></div> <!-- Полоска перетягивания -->
+            </div>
+            <button id="btn-clash-mash">ДАВИТЬ!</button>
+        </div>
+
+        <!-- ДИАЛОГИ / КАТСЦЕНЫ -->
+        <div id="cutscene-ui" style="display: none;">
+            <div class="dialogue-box">
+                <h3 id="dialogue-speaker">Gojo</h3>
+                <p id="dialogue-text">...</p>
+            </div>
         </div>
     </div>
 
-    <!-- 6. 3D МИР -->
+    <!-- 3D МИР -->
     <div id="game-canvas"></div>
 
     <script type="module" src="main.js"></script>
