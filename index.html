@@ -6,7 +6,6 @@
     <title>Jujutsu Kaisen: Cursed Clash</title>
     <link rel="stylesheet" href="style.css">
     
-    <!-- Карта импортов: указывает браузеру, откуда качать библиотеки -->
     <script type="importmap">
         {
             "imports": {
@@ -20,9 +19,8 @@
 </head>
 <body>
 
-    <!-- UI: ЭКРАН ВХОДА (ЛОББИ) -->
+    <!-- ЭКРАН ВХОДА -->
     <div id="auth-container">
-        <div class="curtain-effect"></div>
         <div class="login-box">
             <h1>JUJUTSU<br>GAME</h1>
             <p class="subtitle">Вход в Завесу</p>
@@ -32,26 +30,30 @@
             
             <div class="buttons">
                 <button id="btn-login">ВОЙТИ</button>
-                <button id="btn-register" class="outline">СТАТЬ МАГОМ</button>
+                <button id="btn-register" class="outline">РЕГИСТРАЦИЯ</button>
             </div>
             
             <p id="msg"></p>
         </div>
     </div>
 
-    <!-- UI: ИГРОВОЙ ИНТЕРФЕЙС (HUD) -->
+    <!-- ИГРОВОЙ ИНТЕРФЕЙС (HUD) -->
     <div id="game-ui" style="display: none;">
         <div class="top-bar">
             <div class="player-info">
                 <span id="user-display">Маг</span>
                 <div class="hp-bar"><div class="hp-fill"></div></div>
             </div>
-            <button id="btn-logout">Покинуть бой</button>
+            <button id="btn-logout">Выйти</button>
         </div>
-        <!-- Джойстик добавим позже -->
+
+        <!-- ДЖОЙСТИК -->
+        <div id="joystick-zone">
+            <div id="joystick-knob"></div>
+        </div>
     </div>
 
-    <!-- СЮДА ДОБАВЛЯЕТСЯ 3D МИР -->
+    <!-- 3D МИР -->
     <div id="game-canvas"></div>
 
     <script type="module" src="main.js"></script>
