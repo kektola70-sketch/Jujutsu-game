@@ -38,7 +38,6 @@ const dom = {
         txtE: document.getElementById('hp-text-e'),
         btnAtk: document.getElementById('btn-attack'),
         btnStrong: document.getElementById('btn-strong'),
-        btnBlock: document.getElementById('btn-block'),
         btnDomain: document.getElementById('btn-domain'),
         btnExit: document.getElementById('btn-exit-game')
     },
@@ -47,7 +46,6 @@ const dom = {
         btn: document.getElementById('btn-clash-mash')
     },
     dialogue: {
-        box: document.querySelector('.dialogue-box'),
         speaker: document.getElementById('dialogue-speaker'),
         text: document.getElementById('dialogue-text')
     }
@@ -55,19 +53,18 @@ const dom = {
 
 // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
 let scene, camera, renderer, clock, animId;
-let player, enemy; // Объекты 3D
-let cameraAngle = 0; // Угол вращения камеры
+let player, enemy;
+let cameraAngle = 0;
 let moveData = { x: 0, z: 0 };
 let isTutorial = false;
-let gameState = 'MENU'; // MENU, PLAY, PAUSE, CLASH, CUTSCENE
+let gameState = 'MENU'; 
 
-// Статы боя
 let battle = {
-    hits: 0, // Счетчик для комбо
+    hits: 0, 
     lastStrongTime: 0,
     pHP: 1000, pMax: 1000,
     eHP: 10000, eMax: 10000,
-    clashScore: 50 // 0 = Сукуна вин, 100 = Годжо вин
+    clashScore: 50 
 };
 
 // --- АВТОРИЗАЦИЯ ---
@@ -93,7 +90,7 @@ function startGame(tutorialMode) {
     dom.screens.tutModal.style.display='none';
     dom.screens.game.style.display='block';
     
-    // Сброс статов
+    // Сброс
     battle.pHP = 1000; battle.eHP = isTutorial ? 10000 : 2000;
     battle.eMax = battle.eHP; battle.hits = 0;
     updateHUD();
@@ -104,11 +101,11 @@ function startGame(tutorialMode) {
 
 // --- 3D ДВИЖОК ---
 function init3D() {
-    if(renderer) return; // Уже инициализирован
-    
+    if(renderer) return;
+
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x100010);
-    scene.fog = new THREE.Fog(0x100010, 5, 40);
+    scene.background = new THREE.Color(0x050510);
+    scene.fog = new THREE.Fog(0x050510, 5, 40);
     
     camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer({antialias:true});
@@ -118,16 +115,16 @@ function init3D() {
     
     // Свет
     const dl = new THREE.DirectionalLight(0xffffff, 1.2);
-    dl.position.set(5,10,5); dl.castShadow=true; scene.add(dl);
-    scene.add(new THREE.AmbientLight(0x404040));
+    dl.position.set(5,15,5); dl.castShadow=true; scene.add(dl);
+    scene.add(new THREE.AmbientLight(0x505050));
 
     // Пол
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(60,60), new THREE.MeshStandardMaterial({color:0x222222}));
     floor.rotation.x = -Math.PI/2; floor.receiveShadow=true; scene.add(floor);
 
-    // СОЗДАНИЕ ПЕРСОНАЖЕЙ
-    player = createCharacter('Gojo');
-    enemy = createCharacter(isTutorial ? 'Sukuna' : 'Enemy');
+    // Персонажи (ROBLOX STYLE)
+    player = createRoundCharacter('Gojo');
+    enemy = createRoundCharacter(isTutorial ? 'Sukuna' : 'Enemy');
     
     player.obj.position.set(0,0,5);
     enemy.obj.position.set(0,0,-5);
@@ -138,149 +135,178 @@ function init3D() {
     animate();
 }
 
-// Конструктор персонажей (Low Poly)
-function createCharacter(type) {
+// === НОВЫЙ СОЗДАТЕЛЬ ПЕРСОНАЖЕЙ (ROBLOX R15 STYLE) ===
+function createRoundCharacter(type) {
     const group = new THREE.Group();
     
-    // Материалы
-    const skinMat = new THREE.MeshStandardMaterial({color: 0xffdbac});
-    const blackMat = new THREE.MeshStandardMaterial({color: 0x111111}); // Годжо одежда
-    const whiteMat = new THREE.MeshStandardMaterial({color: 0xffffff}); // Волосы Годжо
-    const pinkMat = new THREE.MeshStandardMaterial({color: 0xff66cc}); // Волосы Сукуны
-    const kimonoMat = new THREE.MeshStandardMaterial({color: 0xffffff}); // Кимоно Сукуны
+    // Цвета
+    const skinColor = 0xffdbac;
+    const gojoOutfit = 0x111111; // Черный
+    const gojoHair = 0xffffff;   // Белый
+    const sukunaOutfit = 0xffffff; // Белый
+    const sukunaHair = 0xff66cc;   // Розовый
+    const sukunaSash = 0x222222;   // Темный пояс
+
+    const skinMat = new THREE.MeshStandardMaterial({color: skinColor});
+    const outfitMat = new THREE.MeshStandardMaterial({color: type === 'Gojo' ? gojoOutfit : sukunaOutfit});
+    const hairMat = new THREE.MeshStandardMaterial({color: type === 'Gojo' ? gojoHair : sukunaHair});
     
-    // Тело
-    const bodyGeo = new THREE.BoxGeometry(0.8, 1.2, 0.5);
-    const body = new THREE.Mesh(bodyGeo, type === 'Gojo' ? blackMat : kimonoMat);
-    body.position.y = 0.6; body.castShadow=true; group.add(body);
-    
-    // Голова
-    const headGeo = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    // 1. ТЕЛО (Capsule)
+    // Radius: 0.35, Length: 0.6
+    const bodyGeo = new THREE.CapsuleGeometry(0.35, 0.6, 4, 8);
+    const body = new THREE.Mesh(bodyGeo, outfitMat);
+    body.position.y = 0.85; // Поднимаем центр
+    body.castShadow = true;
+    group.add(body);
+
+    // 2. ГОЛОВА (Sphere)
+    const headGeo = new THREE.SphereGeometry(0.28, 16, 16);
     const head = new THREE.Mesh(headGeo, skinMat);
-    head.position.y = 1.45; group.add(head);
+    head.position.y = 1.55; 
+    group.add(head);
+
+    // 3. ВОЛОСЫ (Sphere, чуть больше головы)
+    const hairGeo = new THREE.SphereGeometry(0.32, 16, 16);
+    const hair = new THREE.Mesh(hairGeo, hairMat);
+    hair.position.y = 1.6;
+    hair.position.z = -0.05; // Сдвигаем чуть назад
+    group.add(hair);
+
+    // 4. КОНЕЧНОСТИ (Capsules)
+    const limbGeo = new THREE.CapsuleGeometry(0.12, 0.6, 4, 8);
     
-    // Детали
+    // Ноги
+    const lLeg = new THREE.Mesh(limbGeo, outfitMat);
+    lLeg.position.set(-0.2, 0.3, 0);
+    group.add(lLeg);
+    
+    const rLeg = new THREE.Mesh(limbGeo, outfitMat);
+    rLeg.position.set(0.2, 0.3, 0);
+    group.add(rLeg);
+
+    // Руки
+    const lArm = new THREE.Mesh(limbGeo, outfitMat);
+    lArm.position.set(-0.55, 1.0, 0);
+    group.add(lArm);
+    
+    const rArm = new THREE.Mesh(limbGeo, outfitMat);
+    rArm.position.set(0.55, 1.0, 0);
+    group.add(rArm);
+
+    // === ДЕТАЛИ ===
     if (type === 'Gojo') {
-        // Повязка на глаза
-        const blind = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.15, 0.52), blackMat);
-        blind.position.y = 1.5; group.add(blind);
-        // Волосы
-        const hair = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.2, 0.55), whiteMat);
-        hair.position.y = 1.75; group.add(hair);
-    } else if (type === 'Sukuna') {
-        // Волосы
-        const hair = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.3, 0.6), pinkMat);
-        hair.position.y = 1.7; group.add(hair);
-        // Тату (упрощенно - черные полоски)
-        const tattoo = new THREE.Mesh(new THREE.BoxGeometry(0.51, 0.1, 0.51), blackMat);
-        tattoo.position.y = 1.5; group.add(tattoo);
+        // Повязка на глаза (Черное кольцо/Цилиндр)
+        const blindGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.1, 16);
+        const blindMat = new THREE.MeshStandardMaterial({color: 0x000000});
+        const blind = new THREE.Mesh(blindGeo, blindMat);
+        blind.position.y = 1.55;
+        group.add(blind);
+    } 
+    else if (type === 'Sukuna') {
+        // Пояс (Черное кольцо на теле)
+        const sashGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.15, 16);
+        const sashMat = new THREE.MeshStandardMaterial({color: sukunaSash});
+        const sash = new THREE.Mesh(sashGeo, sashMat);
+        sash.position.y = 0.8;
+        group.add(sash);
     }
 
     scene.add(group);
-    return { obj: group, hp: 1000, type: type };
+    return { obj: group, type: type };
 }
 
-// --- ЛОГИКА ИГРЫ ---
+// --- ИГРОВОЙ ЦИКЛ ---
 function animate() {
     animId = requestAnimationFrame(animate);
     const dt = clock.getDelta();
 
     if (gameState === 'PLAY') {
-        // 1. Движение Игрока
+        // Движение (Поворот вектора джойстика)
         if (moveData.x !== 0 || moveData.z !== 0) {
-            // Движение относительно камеры
             const sin = Math.sin(cameraAngle);
             const cos = Math.cos(cameraAngle);
-            
-            // Поворачиваем вектор джойстика
             const worldX = moveData.x * cos - moveData.z * sin;
             const worldZ = moveData.x * sin + moveData.z * cos;
 
             player.obj.position.x -= worldX * 0.15;
             player.obj.position.z -= worldZ * 0.15;
-            
-            // Поворот модельки
             player.obj.rotation.y = Math.atan2(-worldX, -worldZ);
+            
+            // Анимация "покачивания" при ходьбе (простая)
+            player.obj.position.y = Math.sin(Date.now() * 0.01) * 0.05; 
         }
 
-        // 2. Камера (Орбитальная)
+        // Камера
         const dist = 6;
         const camX = player.obj.position.x + Math.sin(cameraAngle) * dist;
         const camZ = player.obj.position.z + Math.cos(cameraAngle) * dist;
         camera.position.set(camX, player.obj.position.y + 4, camZ);
         camera.lookAt(player.obj.position);
 
-        // 3. AI Сукуны (Простой)
+        // AI Врага
         const distToP = player.obj.position.distanceTo(enemy.obj.position);
-        if (distToP > 1.5) {
+        if (distToP > 2) {
             enemy.obj.lookAt(player.obj.position);
-            enemy.obj.translateZ(0.08); // Идет к игроку
+            enemy.obj.translateZ(0.06);
+            enemy.obj.position.y = Math.sin(Date.now() * 0.01 + 1) * 0.05; // Покачивание врага
         } else {
-            // Атакует редко
             if (Math.random() < 0.02) takeDamage('player', 10);
         }
 
-        // 4. Сценарий Обучения
         checkTutorialEvents();
     }
-    
     renderer.render(scene, camera);
 }
 
-// СЦЕНАРИЙ
+// --- БОЕВАЯ ЛОГИКА ---
 function checkTutorialEvents() {
     if (!isTutorial) return;
-
-    // Триггер на 50% ХП Сукуны
     if (battle.eHP <= 5000 && gameState === 'PLAY') {
-        gameState = 'PAUSE'; // Заморозка
+        gameState = 'PAUSE';
         dom.hud.btnDomain.style.display = 'block';
-        showDialogue("Gojo", "У него слишком много энергии... Нужно использовать ЭТО!");
+        showDialogue("Gojo", "Его проклятая энергия растет... Время для Muryo Kusho!");
     }
 }
 
-// --- БОЕВАЯ СИСТЕМА ---
 dom.hud.btnAtk.addEventListener('click', () => attack('light'));
 dom.hud.btnStrong.addEventListener('click', () => attack('strong'));
 
 function attack(type) {
     if (gameState !== 'PLAY') return;
-    
     const dist = player.obj.position.distanceTo(enemy.obj.position);
-    if (dist < 2.5) {
-        // Удар попал
+    
+    // Анимация рывка вперед
+    player.obj.translateZ(0.5);
+    setTimeout(() => player.obj.translateZ(-0.5), 100);
+
+    if (dist < 3) {
         battle.hits++;
         let dmg = 50;
-        let effectColor = 0x0000ff; // Синий (Годжо)
+        let color = 0x0000ff;
 
-        // Черная Молния (30 хитов + сильный удар)
+        // BLACK FLASH LOGIC
         if (type === 'strong') {
             const now = Date.now();
             if (battle.hits >= 30 && (now - battle.lastStrongTime < 500)) {
-                dmg = 1000; // Крит
-                effectColor = 0x000000; // Черный
+                dmg = 2000;
+                color = 0x000000; // Черная молния
                 showDialogue("Gojo", "BLACK FLASH!!!");
-                battle.hits = 0; // Сброс
+                battle.hits = 0;
             } else {
                 dmg = 150;
-                effectColor = 0xff0000; // Красный
+                color = 0xff0000; // Красный (просто сильный удар)
             }
             battle.lastStrongTime = now;
         }
 
         takeDamage('enemy', dmg);
-        spawnEffect(enemy.obj.position, effectColor);
+        spawnEffect(enemy.obj.position, color);
     }
 }
 
 function takeDamage(target, amount) {
-    if (target === 'enemy') {
-        battle.eHP -= amount;
-        if (battle.eHP < 0) battle.eHP = 0;
-    } else {
-        battle.pHP -= amount;
-        if (battle.pHP < 0) battle.pHP = 0;
-    }
+    if (target === 'enemy') battle.eHP = Math.max(0, battle.eHP - amount);
+    else battle.pHP = Math.max(0, battle.pHP - amount);
     updateHUD();
 }
 
@@ -291,89 +317,58 @@ function updateHUD() {
     dom.hud.txtE.textContent = `${battle.eHP}/${battle.eMax}`;
 }
 
-// --- DOMAIN EXPANSION & CLASH ---
-dom.hud.btnDomain.addEventListener('click', () => {
-    if (gameState === 'PAUSE') {
-        startClash();
-    }
-});
+// --- CLASH SYSTEM ---
+dom.hud.btnDomain.addEventListener('click', () => { if(gameState==='PAUSE') startClash(); });
 
 function startClash() {
     gameState = 'CLASH';
     dom.screens.clash.style.display = 'block';
     dom.hud.btnDomain.style.display = 'none';
     dom.screens.cutscene.style.display = 'none';
-    
     battle.clashScore = 50;
     
-    // Таймер перетягивания (враг давит)
     const clashInterval = setInterval(() => {
         if (gameState !== 'CLASH') { clearInterval(clashInterval); return; }
-        
-        battle.clashScore -= 1; // Враг давит
-        updateClashUI();
-        
-        // Проигрыш
-        if (battle.clashScore <= 0) {
-            clearInterval(clashInterval);
-            alert("Сукуна пересилил твою территорию. Ты погиб.");
-            location.reload();
-        }
+        battle.clashScore -= 1.5; // Сложность
+        dom.clash.fill.style.left = (100 - battle.clashScore) + '%';
+        if (battle.clashScore <= 0) { clearInterval(clashInterval); alert("ПОРАЖЕНИЕ"); location.reload(); }
     }, 100);
 }
 
 dom.clash.btn.addEventListener('click', () => {
     if (gameState !== 'CLASH') return;
-    battle.clashScore += 5; // Игрок давит
-    updateClashUI();
-    
-    // Победа
-    if (battle.clashScore >= 100) {
-        winClash();
-    }
+    battle.clashScore += 5;
+    dom.clash.fill.style.left = (100 - battle.clashScore) + '%';
+    if (battle.clashScore >= 100) winClash();
 });
-
-function updateClashUI() {
-    // Двигаем градиент. 50% = центр
-    dom.clash.fill.style.left = (100 - battle.clashScore) + '%'; 
-}
 
 function winClash() {
     gameState = 'CUTSCENE';
     dom.screens.clash.style.display = 'none';
+    scene.background = new THREE.Color(0xffffff); // Infinite Void Effect
     
-    // Катсцена
-    scene.background = new THREE.Color(0xffffff); // Вспышка Infinite Void
-    showDialogue("Gojo", "UNLIMITED VOID! (Бесконечная пустота)");
-    
+    showDialogue("Gojo", "DOMAIN EXPANSION: UNLIMITED VOID!");
     setTimeout(() => {
-        scene.background = new THREE.Color(0x100010);
-        showDialogue("Narrator", "Барьер Годжо трескается от разрезов Сукуны снаружи!");
-        
+        scene.background = new THREE.Color(0x050510);
+        showDialogue("Sukuna", "Malevolent Shrine...");
         setTimeout(() => {
-            showDialogue("Gojo", "Мой барьер не выдержит его ударов снаружи... БЕГИ!");
-            setTimeout(() => {
-                alert("Обучение пройдено! (Конец демо)");
-                location.reload();
-            }, 3000);
+            showDialogue("Gojo", "Черт... Мой барьер ломается снаружи! БЕГИ!");
+            setTimeout(() => { alert("Обучение пройдено!"); location.reload(); }, 3000);
         }, 3000);
-    }, 2000);
+    }, 2500);
 }
 
-// --- УПРАВЛЕНИЕ (Touch) ---
+// --- УПРАВЛЕНИЕ ---
 function initControls() {
-    // Джойстик (Левая часть)
     const joyZone = document.getElementById('joystick-zone');
     const joyKnob = document.getElementById('joystick-knob');
-    let joyTouchId = null;
-    let joyCenter = {x:0, y:0};
+    let joyTouchId = null, joyCenter = {x:0, y:0};
 
     joyZone.addEventListener('touchstart', e => {
         e.preventDefault();
-        const t = e.changedTouches[0];
-        joyTouchId = t.identifier;
-        const rect = joyZone.getBoundingClientRect();
-        joyCenter = { x: rect.left+rect.width/2, y: rect.top+rect.height/2 };
+        const t = e.changedTouches[0]; joyTouchId = t.identifier;
+        const r = joyZone.getBoundingClientRect();
+        joyCenter = { x: r.left+r.width/2, y: r.top+r.height/2 };
     }, {passive:false});
 
     joyZone.addEventListener('touchmove', e => {
@@ -381,47 +376,35 @@ function initControls() {
         for(let i=0; i<e.changedTouches.length; i++) {
             if(e.changedTouches[i].identifier === joyTouchId) {
                 const t = e.changedTouches[i];
-                let dx = t.clientX - joyCenter.x;
-                let dy = t.clientY - joyCenter.y;
-                const dist = Math.sqrt(dx*dx+dy*dy);
-                if(dist>35) { const a = Math.atan2(dy,dx); dx=Math.cos(a)*35; dy=Math.sin(a)*35; }
+                let dx = t.clientX - joyCenter.x, dy = t.clientY - joyCenter.y;
+                const d = Math.sqrt(dx*dx+dy*dy);
+                if(d>35) { const a = Math.atan2(dy,dx); dx=Math.cos(a)*35; dy=Math.sin(a)*35; }
                 joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
                 moveData.x = dx/35; moveData.z = dy/35;
             }
         }
     }, {passive:false});
+    
+    joyZone.addEventListener('touchend', () => { moveData = {x:0, z:0}; joyKnob.style.transform = `translate(-50%, -50%)`; });
 
-    joyZone.addEventListener('touchend', e => {
-        moveData = {x:0, z:0};
-        joyKnob.style.transform = `translate(-50%, -50%)`;
-    });
-
-    // Камера (Правая часть)
     const camZone = document.getElementById('camera-touch-zone');
     let lastX = 0;
-    
-    camZone.addEventListener('touchstart', e => {
-        lastX = e.changedTouches[0].clientX;
-    });
-    
+    camZone.addEventListener('touchstart', e => lastX = e.changedTouches[0].clientX);
     camZone.addEventListener('touchmove', e => {
-        e.preventDefault(); // Чтобы не скроллило
+        e.preventDefault();
         const x = e.changedTouches[0].clientX;
-        const delta = x - lastX;
-        cameraAngle -= delta * 0.01; // Вращаем
+        cameraAngle -= (x - lastX) * 0.01;
         lastX = x;
     });
 }
 
 function spawnEffect(pos, color) {
-    const geo = new THREE.SphereGeometry(0.5);
-    const mat = new THREE.MeshBasicMaterial({color: color, wireframe:true});
+    const geo = new THREE.SphereGeometry(0.8);
+    const mat = new THREE.MeshBasicMaterial({color: color, wireframe:true, transparent:true, opacity:0.8});
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.copy(pos);
     scene.add(mesh);
-    
-    // Исчезает через 0.5 сек
-    setTimeout(() => { scene.remove(mesh); }, 500);
+    setTimeout(() => scene.remove(mesh), 300);
 }
 
 function showDialogue(name, text) {
