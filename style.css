@@ -10,8 +10,8 @@ body {
     touch-action: none;
 }
 
-/* --- ОБЩИЕ ФОНЫ --- */
-#auth-container, #menu-container {
+/* --- ОБЩИЕ ЭКРАНЫ --- */
+.screen {
     position: fixed;
     width: 100%;
     height: 100%;
@@ -22,8 +22,8 @@ body {
     z-index: 20;
 }
 
-/* --- ВХОД --- */
-.login-box {
+/* --- КОРОБКИ (Модальные окна) --- */
+.box {
     width: 300px;
     padding: 30px;
     background: rgba(10, 10, 10, 0.95);
@@ -34,16 +34,32 @@ body {
 }
 
 h1 { margin: 0; font-size: 3rem; line-height: 0.9; text-shadow: 2px 2px 0px #5e187a; }
+h2 { color: #9d00ff; text-transform: uppercase; margin-bottom: 20px; text-shadow: 0 0 10px #9d00ff; }
 .subtitle { color: #aaa; margin-bottom: 20px; letter-spacing: 2px; }
 
-input {
+/* --- ЭЛЕМЕНТЫ ФОРМ --- */
+input[type="email"], input[type="password"] {
     width: 90%; padding: 12px; margin: 8px 0;
     background: #111; border: 1px solid #333; color: white;
     outline: none; font-family: 'Oswald', sans-serif;
 }
 
+/* Слайдер настроек */
+input[type="range"] {
+    width: 100%;
+    accent-color: #9d00ff;
+    margin: 10px 0 20px 0;
+}
+
+.setting-item {
+    text-align: left;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
 .buttons { display: flex; gap: 10px; margin-top: 15px; }
 
+/* --- КНОПКИ --- */
 button {
     flex: 1; padding: 12px;
     font-family: 'Oswald', sans-serif; font-weight: bold;
@@ -53,43 +69,22 @@ button {
 }
 button.outline { background: transparent; border: 1px solid #5e187a; color: #5e187a; }
 
-/* --- ГЛАВНОЕ МЕНЮ --- */
-.menu-box {
-    text-align: center;
-    width: 100%;
-    max-width: 400px;
-}
-
-#menu-username {
-    font-size: 2rem;
-    color: #9d00ff;
-    text-transform: uppercase;
-    margin-bottom: 30px;
-    text-shadow: 0 0 10px #9d00ff;
-}
-
-.menu-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 20px;
-}
+.menu-list { display: flex; flex-direction: column; gap: 15px; padding: 10px 0; }
 
 .menu-btn {
-    padding: 20px;
-    font-size: 1.5rem;
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid #444;
-    color: #fff;
     transition: 0.2s;
-    clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%); /* Скошенные углы */
+    clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
 }
-
 .menu-btn:active { transform: scale(0.95); background: #333; }
 .menu-btn.primary { background: #5e187a; border: none; box-shadow: 0 0 15px #5e187a; }
-.menu-btn.danger { color: #ff4444; border-color: #ff4444; margin-top: 20px; font-size: 1rem; }
+.menu-btn.danger { color: #ff4444; border-color: #ff4444; margin-top: 10px; font-size: 1rem; }
 
-/* --- ИГРОВОЙ UI --- */
+/* --- ИГРОВОЙ ИНТЕРФЕЙС --- */
 #game-ui {
     position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
@@ -118,12 +113,10 @@ button.outline { background: transparent; border: 1px solid #5e187a; color: #5e1
     border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%; pointer-events: auto;
 }
-
 #joystick-knob {
     position: absolute; top: 50%; left: 50%;
     width: 50px; height: 50px;
     background: rgba(157, 0, 255, 0.8);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
+    border-radius: 50%; transform: translate(-50%, -50%);
     box-shadow: 0 0 15px #9d00ff;
 }
