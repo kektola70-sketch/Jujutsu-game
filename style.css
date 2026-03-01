@@ -1,61 +1,172 @@
+:root {
+    --bg-color: #0d0d10;
+    --card-bg: #1a1a20;
+    --primary: #5e17eb; /* Фиолетовый Годжо */
+    --accent: #ff0055;  /* Красный Сукуны */
+    --text: #ffffff;
+    --text-dim: #a0a0a0;
+}
+
 body {
-    background-color: #121212;
-    color: #e0e0e0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text);
+    font-family: 'Courier New', Courier, monospace; /* Техно-стиль */
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
+    overflow: hidden;
 }
 
 .container {
-    text-align: center;
-    background: #1e1e24;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 0 20px #4a148c; /* Фиолетовое свечение */
     width: 90%;
     max-width: 400px;
+    text-align: center;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .hidden {
-    display: none;
+    display: none !important;
+}
+
+/* Auth Styles */
+.title {
+    font-size: 2rem;
+    text-shadow: 0 0 10px var(--primary);
+    margin-bottom: 5px;
+}
+.subtitle {
+    color: var(--text-dim);
+    margin-bottom: 20px;
+}
+
+.auth-box {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #333;
 }
 
 input {
-    display: block;
     width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    background: #2c2c35;
+    padding: 12px;
+    margin: 8px 0;
+    background: #25252e;
     border: 1px solid #333;
     color: white;
     border-radius: 5px;
     box-sizing: border-box;
+    outline: none;
+}
+input:focus {
+    border-color: var(--primary);
 }
 
+/* Buttons */
 .btn {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin: 5px 0;
-    cursor: pointer;
     border: none;
     border-radius: 5px;
     font-weight: bold;
-    transition: 0.3s;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.2s;
+}
+.btn:active { transform: scale(0.98); }
+
+.primary { background: var(--primary); color: white; }
+.secondary { background: #333; color: white; }
+.google { background: #db4437; color: white; }
+.anon { background: #555; color: white; }
+
+.buttons-row {
+    display: flex;
+    gap: 10px;
 }
 
-.primary { background-color: #6200ea; color: white; }
-.secondary { background-color: #00bfa5; color: black; }
-.google { background-color: #db4437; color: white; }
-.anon { background-color: #757575; color: white; }
-.logout { background-color: #d32f2f; color: white; margin-top: 20px;}
+.divider {
+    margin: 15px 0;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+}
 
-.btn:hover { opacity: 0.9; }
+.error { color: var(--accent); font-size: 0.9em; margin-top: 10px; }
 
-.error {
-    color: #ff5252;
-    font-size: 0.9em;
-    margin-top: 10px;
+/* MENU Styles */
+.profile-header {
+    background: var(--card-bg);
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-left: 4px solid var(--primary);
+    margin-bottom: 30px;
+}
+
+.avatar {
+    width: 50px;
+    height: 50px;
+    background: #333;
+    border-radius: 50%;
+    border: 2px solid var(--text-dim);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.rank {
+    font-size: 0.8rem;
+    color: var(--primary);
+}
+
+.menu-title {
+    letter-spacing: 5px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.menu-btn {
+    background: transparent;
+    border: 1px solid var(--text-dim);
+    color: var(--text);
+    padding: 15px;
+    font-size: 1.1rem;
+}
+
+.menu-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+.start-btn {
+    background: var(--accent);
+    border: none;
+    box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+}
+.start-btn:hover { background: #d40045; }
+
+.logout-btn {
+    margin-top: 20px;
+    color: var(--text-dim);
+    border-color: #333;
+    font-size: 0.9rem;
 }
