@@ -7,15 +7,14 @@ let loadedUserData = null;
 const MAX_LEVEL = 500;
 const MAX_MASTERY = 500;
 
+// --- ТЕХНИКИ ---
 const TECHNIQUES = [
     { name: "Манипуляция П.Э.", rarity: "Common", class: "r-common" },
-    { name: "Использование оружия", rarity: "Common", class: "r-common" },
     { name: "Соломенная Кукла", rarity: "Rare", class: "r-rare" },
     { name: "Десять Теней", rarity: "Mythic", class: "r-mythic" },
     { name: "Копирование (Юта)", rarity: "Legendary", class: "r-legendary" },
     { name: "LIMITLESS + SIX EYES", rarity: "MASTERS", class: "r-masters" },
-    { name: "MALEVOLENT SHRINE", rarity: "MASTERS", class: "r-masters" },
-    { name: "Небесное Ограничение", rarity: "MASTERS", class: "r-masters" }
+    { name: "MALEVOLENT SHRINE", rarity: "MASTERS", class: "r-masters" }
 ];
 
 const SKILL_TREE = {
@@ -36,12 +35,11 @@ const SKILL_TREE = {
 };
 
 const YUTA_STORY = [
-    "Больница. Писк монитора. Твоя сестра умерла... но она осталась.",
-    "Её душа стала проклятием, чтобы защищать тебя.",
-    "Несколько минут спустя... Годжо находит тебя: «Ты опасен. Идем в техникум».",
-    "Техникум. Ты входишь в класс. Маки, Панда и Инумаки сразу нападают!",
-    "Твоя тень разрывается. Рика кричит: «НЕ ТРОНЬТЕ ЮТУ!!!». Все в ужасе.",
-    "Годжо смеется: «Отлично! А теперь покажи, на что ты способен. Начинаем тренировку!»"
+    "Больница. Сестра умерла, но стала проклятием.",
+    "Встреча с Годжо: «Ты опасен. Идем в техникум».",
+    "Техникум: Нападение Маки.",
+    "Рика защищает: «НЕ ТРОНЬТЕ ЮТУ!!!».",
+    "Годжо: «Пора на тренировку!»"
 ];
 
 // --- ПРОВЕРКА ПРОГРЕССА ---
@@ -64,7 +62,6 @@ export async function checkUserProgress(uid, menuScreen, gameScreen) {
             menuScreen.classList.add('hidden');
             gameScreen.classList.remove('hidden');
 
-            // Запускаем обучение с задержкой, чтобы DOM прогрузился
             if (loadedUserData.tutorialStep === 0) {
                 setTimeout(() => startTutorialSequence(1), 1000);
             }
@@ -72,7 +69,7 @@ export async function checkUserProgress(uid, menuScreen, gameScreen) {
         } else {
             loadedUserData = null;
             menuScreen.classList.add('hidden');
-            startStory(["Ты рождаешься в мире, полном проклятий..."], "Пролог", true);
+            startStory(["Рождение..."], "Пролог", true);
         }
     } catch (e) { console.error(e); }
 }
@@ -87,57 +84,64 @@ function updateStatusUI() {
     rEl.className = getRarityClass(loadedUserData.rarity);
 }
 
-// --- СИСТЕМА ОБУЧЕНИЯ (ИСПРАВЛЕНА) ---
+// --- СИСТЕМА ОБУЧЕНИЯ (СУПЕР-ФИКС) ---
 function startTutorialSequence(step) {
     const overlay = document.getElementById('tutorial-overlay');
     const msg = document.getElementById('tutorial-msg');
     
+    // Включаем слой текста
     overlay.classList.remove('hidden');
 
-    // Очистка всех подсветок
+    // Сбрасываем старое
     document.querySelectorAll('.highlight-element').forEach(el => el.classList.remove('highlight-element'));
+    
+    // Сбрасываем zIndex контейнеров
+    document.getElementById('gameplay-container').style.zIndex = "";
+    document.getElementById('training-hub-container').style.zIndex = "";
 
     if (step === 1) {
         // ШАГ 1: Кнопка Тренировки
         msg.textContent = "Годжо: «Нажми кнопку ТРЕНИРОВКА!»";
         const btn = document.getElementById('btn-training');
         
-        // Добавляем класс подсветки
+        // ВАЖНО: Поднимаем контейнер выше всего, чтобы кнопку можно было нажать
+        document.getElementById('gameplay-container').style.zIndex = "20000";
         btn.classList.add('highlight-element');
 
-        // Переписываем onclick жестко для туториала
+        const originalClick = btn.onclick;
         btn.onclick = (e) => {
-            e.stopPropagation(); 
-            // Скрываем обучение, чтобы не мешало переходу
-            overlay.classList.add('hidden');
+            e.stopPropagation();
             btn.classList.remove('highlight-element');
+            document.getElementById('gameplay-container').style.zIndex = ""; // Возвращаем контейнер
+            overlay.classList.add('hidden');
             
-            // Открываем 3D режим
-            open3DTraining(true); 
+            open3DTraining(true); // Открываем 3D
         };
     } 
     else if (step === 2) {
-        // ШАГ 2: Кнопка Удар
+        // ШАГ 2: Удар
         overlay.classList.remove('hidden');
-        msg.textContent = "Годжо: «Отлично! Теперь нажми УДАР.»";
+        msg.textContent = "Годжо: «Атакуй! Нажми УДАР.»";
         
+        // Поднимаем контейнер 3D сцены
+        document.getElementById('training-hub-container').style.zIndex = "20000";
+
         const btnHit = document.getElementById('btn-hit-dummy');
         btnHit.classList.add('highlight-element');
 
         btnHit.onclick = () => {
              performHitAnim();
              addRewards(10, 1);
-             
              btnHit.classList.remove('highlight-element');
              startTutorialSequence(3);
         };
     }
     else if (step === 3) {
         // ШАГ 3: Выход
-        msg.textContent = "Годжо: «Супер! Нажми ВЫХОД для сохранения.»";
+        msg.textContent = "Годжо: «Молодец. Нажми ВЫХОД.»";
         
-        // Отключаем удар
-        document.getElementById('btn-hit-dummy').onclick = null;
+        document.getElementById('training-hub-container').style.zIndex = "20000";
+        document.getElementById('btn-hit-dummy').onclick = null; // Блок удара
         
         const btnExit = document.getElementById('btn-exit-training');
         btnExit.classList.add('highlight-element');
@@ -145,19 +149,21 @@ function startTutorialSequence(step) {
         btnExit.onclick = async () => {
             overlay.classList.add('hidden');
             btnExit.classList.remove('highlight-element');
+            document.getElementById('training-hub-container').style.zIndex = "";
             
             document.getElementById('training-hub-container').classList.add('hidden');
             document.getElementById('gameplay-container').classList.remove('hidden');
             
-            loadedUserData.tutorialStep = 99; // Обучение пройдено
+            loadedUserData.tutorialStep = 99;
             await saveProgress();
             
             alert("Обучение завершено!");
-            setupTrainingButton(); // Возвращаем обычную кнопку
+            setupTrainingButton(); // Возвращаем нормальную логику
         };
     }
 }
 
+// --- ФУНКЦИИ ИГРЫ ---
 function setupTrainingButton() {
     const btnTrain = document.getElementById('btn-training');
     const newBtn = btnTrain.cloneNode(true);
@@ -176,7 +182,6 @@ function setupTrainingButton() {
     });
 }
 
-// --- 3D РЕЖИМ ---
 function open3DTraining(isTutorial) {
     document.getElementById('gameplay-container').classList.add('hidden');
     document.getElementById('story-container').classList.add('hidden');
@@ -189,10 +194,8 @@ function open3DTraining(isTutorial) {
     const btnExit = document.getElementById('btn-exit-training');
 
     if (isTutorial) {
-        // Если это обучение, запускаем шаг 2 через полсекунды
         setTimeout(() => startTutorialSequence(2), 500);
     } else {
-        // Обычный режим
         btnHit.onclick = () => {
             performHitAnim();
             addRewards(5, 1);
@@ -211,11 +214,9 @@ function open3DTraining(isTutorial) {
 function performHitAnim() {
     const cube = document.getElementById('dummy-cube');
     cube.classList.remove('hit-anim');
-    void cube.offsetWidth; 
+    void cube.offsetWidth;
     cube.classList.add('hit-anim');
-    const rx = -20 + (Math.random() * 20 - 10);
-    const ry = 45 + (Math.random() * 40 - 20);
-    cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+    cube.style.transform = `rotateX(${Math.random()*360}deg) rotateY(${Math.random()*360}deg)`;
 }
 
 function addRewards(xp, mas) {
@@ -389,7 +390,7 @@ async function saveGameData(className, rarity) {
         lvl: 1,
         mastery: 0,
         xp: 0,
-        tutorialStep: 0, // ВАЖНО: Нужен туториал
+        tutorialStep: 0, // ТУТОРИАЛ АКТИВЕН
         storySeen: false,
         createdAt: new Date()
     };
