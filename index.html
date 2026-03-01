@@ -14,18 +14,15 @@
         <p class="subtitle">Вход в мир магии</p>
         
         <div class="auth-box">
-            <input type="email" id="email" placeholder="Email шамана">
+            <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Пароль">
-            
             <div class="buttons-row">
                 <button id="btn-login" class="btn primary">Войти</button>
                 <button id="btn-register" class="btn secondary">Регистрация</button>
             </div>
-
             <div class="divider">или</div>
-            
-            <button id="btn-google" class="btn google">Google Вход</button>
-            <button id="btn-anon" class="btn anon">Анонимный вход</button>
+            <button id="btn-google" class="btn google">Google</button>
+            <button id="btn-anon" class="btn anon">Аноним</button>
         </div>
         <p id="error-message" class="error"></p>
     </div>
@@ -33,27 +30,68 @@
     <!-- ЭКРАН 2: Главное Меню -->
     <div id="menu-container" class="container hidden">
         <div class="profile-header">
-            <div class="avatar"></div>
+            <div class="avatar" id="avatar-display"></div>
             <div class="user-info">
-                <span id="menu-username">Шаман</span>
-                <span class="rank">Ранг: 4</span>
+                <span id="menu-username">Загрузка...</span>
+                <span id="menu-rank" class="rank">Не маг</span>
             </div>
         </div>
 
-        <h1 class="menu-title">ГЛАВНОЕ МЕНЮ</h1>
+        <h1 class="menu-title">МЕНЮ</h1>
 
         <div class="menu-buttons">
             <button id="btn-start-game" class="btn menu-btn start-btn">НАЧАТЬ МИССИЮ</button>
             <button id="btn-settings" class="btn menu-btn">НАСТРОЙКИ</button>
-            <button id="btn-logout" class="btn menu-btn logout-btn">ВЫЙТИ ИЗ СИСТЕМЫ</button>
+            <button id="btn-logout" class="btn menu-btn logout-btn">ВЫЙТИ</button>
         </div>
     </div>
 
-    <!-- ЭКРАН 3: Игра (Заглушка) -->
+    <!-- ЭКРАН 3: Настройки (Модальное окно) -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Настройки</h2>
+            <div class="setting-item">
+                <label>Звуки интерфейса</label>
+                <input type="checkbox" id="setting-sound" checked>
+            </div>
+            <div class="setting-item">
+                <label>Музыка</label>
+                <input type="checkbox" id="setting-music" checked>
+            </div>
+            <div class="setting-item">
+                <label>Эффекты проклятий (Графика)</label>
+                <select id="setting-graphics">
+                    <option value="low">Низкие</option>
+                    <option value="high" selected>Высокие</option>
+                </select>
+            </div>
+            <button id="btn-close-settings" class="btn primary">Сохранить</button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 4: Обучение / История -->
+    <div id="story-container" class="container hidden">
+        <h2 id="story-title">Воспоминание...</h2>
+        <div class="story-text" id="story-text">
+            <!-- Текст сюжета будет здесь -->
+        </div>
+        
+        <!-- Блок выбора (появится позже) -->
+        <div id="choice-container" class="choice-grid hidden">
+            <!-- Карточки выбора -->
+        </div>
+
+        <button id="btn-next-story" class="btn secondary">Продолжить</button>
+    </div>
+
+    <!-- ЭКРАН 5: Игра -->
     <div id="gameplay-container" class="container hidden">
         <h1>БИТВА</h1>
-        <p>Здесь будет происходить сражение...</p>
-        <button id="btn-back-to-menu" class="btn secondary">Сбежать в меню</button>
+        <p>Ваш класс: <span id="player-class-display">-</span></p>
+        <div class="battle-area">
+            <p>Здесь будет боевая система...</p>
+        </div>
+        <button id="btn-back-to-menu" class="btn secondary">Вернуться в меню</button>
     </div>
 
     <!-- Скрипты -->
