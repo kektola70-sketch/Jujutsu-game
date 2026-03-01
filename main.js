@@ -3,7 +3,7 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, Go
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { initMenu, updateProfileUI } from "./menu.js";
-import { initDB } from "./gameData.js";
+import { initDB, setGlobalUid } from "./gameData.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDpNFC0W1PRJ2Q3L0i7D7iSBWfKwhhNezs",
@@ -27,6 +27,7 @@ const menuContainer = document.getElementById('menu-container');
 const emailInput = document.getElementById('email');
 const passInput = document.getElementById('password');
 
+// Auth Handlers
 document.getElementById('btn-register').addEventListener('click', () => createUserWithEmailAndPassword(auth, emailInput.value, passInput.value).catch(e => alert(e.message)));
 document.getElementById('btn-login').addEventListener('click', () => signInWithEmailAndPassword(auth, emailInput.value, passInput.value).catch(e => alert(e.message)));
 document.getElementById('btn-google').addEventListener('click', () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e => alert(e.message)));
@@ -34,9 +35,10 @@ document.getElementById('btn-anon').addEventListener('click', () => signInAnonym
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
+        setGlobalUid(user.uid); // Передаем UID в gameData
         authContainer.classList.add('hidden');
         document.getElementById('story-container').classList.add('hidden');
-        document.getElementById('spin-container').classList.add('hidden'); // Скрываем спин при входе
+        document.getElementById('spin-container').classList.add('hidden');
         
         const userRef = doc(db, "users", user.uid);
         let userData = { email: user.email, rank: "Не маг" };
@@ -52,5 +54,6 @@ onAuthStateChanged(auth, async (user) => {
         authContainer.classList.remove('hidden');
         menuContainer.classList.add('hidden');
         document.getElementById('gameplay-container').classList.add('hidden');
+        document.getElementById('training-hub-container').classList.add('hidden');
     }
 });
