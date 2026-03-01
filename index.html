@@ -2,63 +2,44 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jujutsu Kaisen: Modular</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jujutsu Game - Login</title>
     <link rel="stylesheet" href="style.css">
-    <script type="importmap">
-        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js" } }
-    </script>
 </head>
 <body>
 
-    <!-- ВХОД / МЕНЮ (Оставляем как было, сокращенно для примера) -->
-    <div id="auth-container" class="screen"><div class="box"><h1>JUJUTSU GAME</h1><button id="btn-login" class="menu-btn primary">ВОЙТИ</button></div></div>
-    <div id="menu-container" class="screen" style="display:none;"><div class="box"><button id="btn-play" class="menu-btn primary">ИГРАТЬ</button></div></div>
-
-    <!-- UI ИГРЫ -->
-    <div id="game-ui" style="display: none;">
-        <!-- Черные полосы (Кино-эффект) -->
-        <div id="cinematic-bars">
-            <div class="bar top"></div>
-            <div class="bar bottom"></div>
-        </div>
-
-        <div class="top-bar">
-            <div class="hp-wrapper"><span>GOJO</span><div class="hp-bar"><div id="hp-player" class="hp-fill"></div></div></div>
-            <div class="hp-wrapper enemy"><span>SUKUNA</span><div class="hp-bar"><div id="hp-enemy" class="hp-fill"></div></div></div>
-        </div>
-
-        <div id="controls-layer">
-            <div id="joystick-zone"><div id="joystick-knob"></div></div>
-            <div id="camera-touch-zone"></div>
-            <div class="combat-buttons">
-                <button id="btn-domain" class="c-btn domain-btn" style="display:none;">DOMAIN EXPANSION</button>
-                <div class="main-actions">
-                    <button id="btn-strong" class="c-btn medium">👊</button>
-                    <button id="btn-attack" class="c-btn big">⚔️</button>
-                </div>
+    <!-- Экран авторизации -->
+    <div id="auth-container" class="container">
+        <h1>Jujutsu Kaisen Game</h1>
+        <p>Добро пожаловать в техникум магии</p>
+        
+        <div class="auth-box">
+            <input type="email" id="email" placeholder="Email мага">
+            <input type="password" id="password" placeholder="Пароль">
+            
+            <div class="buttons">
+                <button id="btn-login" class="btn primary">Войти</button>
+                <button id="btn-register" class="btn secondary">Регистрация</button>
             </div>
-        </div>
 
-        <!-- CLASH UI -->
-        <div id="clash-ui" style="display: none;">
-            <h2>DOMAIN CLASH</h2>
-            <div class="clash-bar-bg"><div id="clash-fill" class="clash-fill"></div></div>
-            <button id="btn-clash-mash">ДАВИТЬ!</button>
+            <hr>
+            
+            <button id="btn-google" class="btn google">Войти через Google</button>
+            <button id="btn-anon" class="btn anon">Войти анонимно (Рёмен Сукуна?)</button>
         </div>
-
-        <!-- НОВЫЙ ИНТЕРФЕЙС КАТСЦЕН -->
-        <div id="cutscene-ui" style="display: none;">
-            <div class="dialogue-container">
-                <h3 id="d-name">Speaker</h3>
-                <p id="d-text">Text goes here...</p>
-                <button id="btn-next-dialogue">ДАЛЕЕ ▶</button>
-            </div>
-        </div>
+        <p id="error-message" class="error"></p>
     </div>
 
-    <div id="game-canvas"></div>
-    <!-- ГЛАВНЫЙ СКРИПТ (из папки js) -->
-    <script type="module" src="js/main.js"></script>
+    <!-- Экран игры (появится после входа) -->
+    <div id="game-container" class="container hidden">
+        <h1>Профиль Шамана</h1>
+        <p>Привет, <span id="user-display"></span>!</p>
+        <p>UID: <small id="user-uid"></small></p>
+        
+        <button id="btn-logout" class="btn logout">Выйти</button>
+    </div>
+
+    <!-- Подключаем скрипт как модуль -->
+    <script type="module" src="main.js"></script>
 </body>
 </html>
