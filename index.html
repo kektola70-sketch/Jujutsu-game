@@ -3,108 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jujutsu Game</title>
+    <title>Jujutsu Game 3D</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ЭКРАН 1: Авторизация -->
-    <div id="auth-container" class="container">
-        <h1 class="title">JUJUTSU KAISEN</h1>
-        <p class="subtitle">Мир Проклятий</p>
+    <!-- UI СЛОЙ (2D поверх 3D) -->
+    <div id="ui-layer">
         
-        <div class="auth-box">
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Пароль">
-            
-            <div class="buttons-row">
-                <button id="btn-login" class="btn primary">Войти</button>
-                <button id="btn-register" class="btn secondary">Регистрация</button>
+        <!-- ЭКРАН 1: Авторизация -->
+        <div id="auth-container" class="container">
+            <h1 class="title glitched">JUJUTSU KAISEN</h1>
+            <div class="auth-box">
+                <input type="email" id="email" placeholder="Email">
+                <input type="password" id="password" placeholder="Пароль">
+                <div class="buttons-row">
+                    <button id="btn-login" class="btn primary">Войти</button>
+                    <button id="btn-register" class="btn secondary">Регистрация</button>
+                </div>
+                <div class="divider">или</div>
+                <button id="btn-google" class="btn google">Google</button>
+                <button id="btn-anon" class="btn anon">Аноним</button>
+            </div>
+            <p id="error-message" class="error"></p>
+        </div>
+
+        <!-- ЭКРАН 2: Меню -->
+        <div id="menu-container" class="container hidden">
+            <div class="profile-header">
+                <div class="avatar"></div>
+                <div class="user-info">
+                    <span id="menu-username">Маг</span>
+                    <span id="menu-rank" class="rank">Не маг</span>
+                </div>
+            </div>
+            <div class="menu-buttons">
+                <button id="btn-start-game" class="btn menu-btn start-btn">НАЧАТЬ МИССИЮ</button>
+                <button id="btn-settings" class="btn menu-btn">НАСТРОЙКИ</button>
+                <button id="btn-logout" class="btn menu-btn logout-btn">ВЫЙТИ</button>
+            </div>
+        </div>
+
+        <!-- ЭКРАН: Настройки -->
+        <div id="settings-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Настройки</h2>
+                <button id="btn-close-settings" class="btn primary">Закрыть</button>
+                <hr>
+                <button id="btn-reset-progress" class="btn secondary error-btn">СБРОСИТЬ ПРОГРЕСС</button>
+            </div>
+        </div>
+
+        <!-- ЭКРАН: История -->
+        <div id="story-container" class="container hidden">
+            <h2 id="story-title" class="story-header">Воспоминание</h2>
+            <div class="story-text" id="story-text"></div>
+            <div id="choice-container" class="choice-grid hidden"></div>
+            <button id="btn-next-story" class="btn secondary">Далее</button>
+        </div>
+
+        <!-- ЭКРАН: Гача -->
+        <div id="spin-container" class="container hidden">
+            <h1 class="menu-title">ПРОБУЖДЕНИЕ</h1>
+            <div class="spin-box">
+                <div id="spin-result" class="spin-result">?</div>
+                <p id="spin-rarity" class="spin-rarity">SPIN</p>
+            </div>
+            <p>Попыток: <strong id="spins-left">10</strong></p>
+            <button id="btn-spin" class="btn primary start-btn">КРУТИТЬ</button>
+            <button id="btn-accept-spin" class="btn secondary hidden">ПРИНЯТЬ</button>
+        </div>
+
+        <!-- ЭКРАН: Статус Игрока -->
+        <div id="gameplay-container" class="container hidden">
+            <h1 class="menu-title">СТАТУС</h1>
+            <div class="auth-box status-box">
+                <p>Техника: <strong id="player-class-display" style="color: var(--primary)">-</strong></p>
+                <p>LVL: <strong id="player-lvl-display" style="color: gold">1</strong> <small>/ 500</small></p>
+                <p>Мастерство: <strong id="player-mastery-display" style="color: cyan">0</strong> <small>/ 500</small></p>
+                <p>Опыт: <span id="player-xp-display">0</span></p>
+            </div>
+            <div class="menu-buttons" style="margin-top: 20px;">
+                <button id="btn-training" class="btn primary">ТРЕНИРОВКА (БОЙ)</button>
+                <button id="btn-back-to-menu" class="btn secondary">Меню</button>
+            </div>
+        </div>
+
+        <!-- ЭКРАН: 3D ПОЛИГОН -->
+        <div id="training-hub-container" class="hidden">
+            <div class="hud-top">
+                <div>LVL: <span id="train-lvl">1</span></div>
+                <div>Mastery: <span id="train-mastery">0</span></div>
             </div>
 
-            <div class="divider">или</div>
-            <button id="btn-google" class="btn google">Google Вход</button>
-            <button id="btn-anon" class="btn anon">Анонимный вход</button>
-        </div>
-        <p id="error-message" class="error"></p>
-    </div>
+            <!-- 3D СЦЕНА -->
+            <div class="scene">
+                <div class="cube" id="dummy-cube">
+                    <div class="face front">👁️</div>
+                    <div class="face back">💢</div>
+                    <div class="face right">🤜</div>
+                    <div class="face left">🤛</div>
+                    <div class="face top">🧠</div>
+                    <div class="face bottom">🦶</div>
+                </div>
+                <div class="floor"></div>
+            </div>
 
-    <!-- ЭКРАН 2: Главное Меню -->
-    <div id="menu-container" class="container hidden">
-        <div class="profile-header">
-            <div class="avatar"></div>
-            <div class="user-info">
-                <span id="menu-username">Загрузка...</span>
-                <span id="menu-rank" class="rank">Не маг</span>
+            <div class="hud-bottom">
+                <button id="btn-hit-dummy" class="btn primary hit-btn">УДАР (TAP)</button>
+                
+                <div id="skills-panel" class="skills-panel">
+                    <!-- Скиллы -->
+                </div>
+
+                <button id="btn-exit-training" class="btn secondary small-btn">ВЫХОД</button>
             </div>
         </div>
 
-        <h1 class="menu-title">ГЛАВНОЕ МЕНЮ</h1>
-
-        <div class="menu-buttons">
-            <button id="btn-start-game" class="btn menu-btn start-btn">НАЧАТЬ МИССИЮ</button>
-            <button id="btn-settings" class="btn menu-btn">НАСТРОЙКИ</button>
-            <button id="btn-logout" class="btn menu-btn logout-btn">ВЫЙТИ</button>
-        </div>
-    </div>
-
-    <!-- ЭКРАН 3: Настройки -->
-    <div id="settings-modal" class="modal hidden">
-        <div class="modal-content">
-            <h2>Настройки</h2>
-            <div class="setting-item">
-                <label>Звуки интерфейса</label>
-                <input type="checkbox" id="setting-sound" checked>
-            </div>
-            <div class="setting-item">
-                <label>Графика проклятий</label>
-                <select id="setting-graphics">
-                    <option value="low">Низкая</option>
-                    <option value="high" selected>Высокая</option>
-                </select>
-            </div>
-            <button id="btn-close-settings" class="btn primary">Сохранить</button>
-            <hr style="border-color: #333; margin: 15px 0;">
-            <p style="font-size: 0.8rem; color: #666;">ОПАСНАЯ ЗОНА</p>
-            <button id="btn-reset-progress" class="btn secondary" style="border: 1px solid var(--accent); color: var(--accent);">СБРОСИТЬ ПРОГРЕСС</button>
-        </div>
-    </div>
-
-    <!-- ЭКРАН 4: История / Катсцены -->
-    <div id="story-container" class="container hidden">
-        <h2 id="story-title" class="story-header">Воспоминание</h2>
-        <div class="story-text" id="story-text"></div>
-        <div id="choice-container" class="choice-grid hidden"></div>
-        <button id="btn-next-story" class="btn secondary">Далее</button>
-    </div>
-
-    <!-- ЭКРАН 5: Рулетка (GACHA) -->
-    <div id="spin-container" class="container hidden">
-        <h1 class="menu-title">ПРОБУЖДЕНИЕ</h1>
-        <p>Кендзяку наблюдает...</p>
-        <div class="spin-box">
-            <div id="spin-result" class="spin-result">?</div>
-            <p id="spin-rarity" class="spin-rarity">Нажми "Пробудить"</p>
-        </div>
-        <p>Осталось попыток: <strong id="spins-left" style="color: var(--primary); font-size: 1.2em;">10</strong></p>
-        <button id="btn-spin" class="btn primary start-btn">ПРОБУДИТЬ (SPIN)</button>
-        <button id="btn-accept-spin" class="btn secondary hidden">ПРИНЯТЬ ЭТУ СИЛУ</button>
-    </div>
-
-    <!-- ЭКРАН 6: Игра (Статус) -->
-    <div id="gameplay-container" class="container hidden">
-        <h1 class="menu-title">СТАТУС ШАМАНА</h1>
-        <div class="auth-box status-box">
-            <p>Техника: <strong id="player-class-display" style="color: var(--primary); font-size: 1.2rem;">-</strong></p>
-            <p>Ранг: <strong id="player-rank-display" style="color: var(--text-dim)">-</strong></p>
-            <hr style="border-color: #333; margin: 10px 0;">
-            <p>Редкость: <span id="player-rarity-display">-</span></p>
-        </div>
-        <div class="menu-buttons" style="margin-top: 20px;">
-            <!-- ДОБАВИЛИ ID СЮДА -->
-            <button id="btn-training" class="btn primary">Тренировка (Сюжет)</button>
-            <button id="btn-back-to-menu" class="btn secondary">Вернуться в меню</button>
-        </div>
     </div>
 
     <script type="module" src="main.js"></script>
