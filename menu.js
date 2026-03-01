@@ -1,9 +1,6 @@
-// menu.js
+import { checkUserProgress, startStory } from "./gameData.js";
 
-// Экспортируем функцию инициализации меню
 export function initMenu(auth, signOutFunc) {
-    
-    // Элементы
     const btnStart = document.getElementById('btn-start-game');
     const btnSettings = document.getElementById('btn-settings');
     const btnLogout = document.getElementById('btn-logout');
@@ -12,36 +9,49 @@ export function initMenu(auth, signOutFunc) {
     // Экраны
     const menuScreen = document.getElementById('menu-container');
     const gameScreen = document.getElementById('gameplay-container');
+    const settingsModal = document.getElementById('settings-modal');
+    const btnCloseSettings = document.getElementById('btn-close-settings');
 
-    // 1. Кнопка "Начать миссию"
+    // 1. НАЧАТЬ (Проверка прогресса)
     if(btnStart) {
         btnStart.addEventListener('click', () => {
-            console.log("Запуск игры...");
-            // Скрываем меню, показываем игру
-            menuScreen.classList.add('hidden');
-            gameScreen.classList.remove('hidden');
-        });
-    }
-
-    // 2. Кнопка "Настройки"
-    if(btnSettings) {
-        btnSettings.addEventListener('click', () => {
-            alert("Настройки пока недоступны. Используй Проклятую Энергию с умом.");
-        });
-    }
-
-    // 3. Кнопка "Выход"
-    if(btnLogout) {
-        btnLogout.addEventListener('click', () => {
-            if(confirm("Покинуть магический техникум?")) {
-                signOutFunc(auth).then(() => {
-                    console.log("User logged out via Menu");
-                });
+            const user = auth.currentUser;
+            if(user) {
+                // Функция из gameData.js проверит, новичок ли игрок
+                checkUserProgress(user.uid, menuScreen, gameScreen);
             }
         });
     }
 
-    // 4. Кнопка "Вернуться в меню" (из игры)
+    // 2. НАСТРОЙКИ (Открыть)
+    if(btnSettings) {
+        btnSettings.addEventListener('click', () => {
+            settingsModal.classList.remove('hidden');
+        });
+    }
+
+    // 3. ЗАКРЫТЬ НАСТРОЙКИ
+    if(btnCloseSettings) {
+        btnCloseSettings.addEventListener('click', () => {
+            // Здесь можно сохранить настройки в LocalStorage
+            const sound = document.getElementById('setting-sound').checked;
+            const graphics = document.getElementById('setting-graphics').value;
+            console.log("Настройки сохранены:", { sound, graphics });
+            
+            settingsModal.classList.add('hidden');
+        });
+    }
+
+    // 4. ВЫХОД
+    if(btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            if(confirm("Покинуть магический техникум?")) {
+                signOutFunc(auth);
+            }
+        });
+    }
+
+    // 5. НАЗАД В МЕНЮ
     if(btnBack) {
         btnBack.addEventListener('click', () => {
             gameScreen.classList.add('hidden');
@@ -50,12 +60,18 @@ export function initMenu(auth, signOutFunc) {
     }
 }
 
-// Функция для обновления интерфейса профиля
-export function updateProfileUI(user) {
+export function updateProfileUI(userData) {
     const usernameEl = document.getElementById('menu-username');
-    if(user) {
-        // Если есть email, берем часть до @, иначе 'Неизвестный'
-        const name = user.email ? user.email.split('@')[0] : "Сукуна (Аноним)";
-        usernameEl.textContent = name;
+    const rankEl = document.getElementById('menu-rank');
+    const avatarEl = document.getElementById('avatar-display');
+
+    if(userData) {
+        usernameEl.textContent = userData.email ? userData.email.split('@')[0] : "Маг";
+        // Если данные загружены из БД, ставим их, иначе дефолт
+        rankEl.textContent = userData.rank || "Не маг";
+        
+        // Цвет ранга
+        if(userData.rank === "Не маг") rankEl.style.color = "#a0a0a0";
+        else rankEl.style.color = "#ff0055";
     }
 }
