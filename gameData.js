@@ -3,11 +3,10 @@ import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from "https
 let db; 
 export function initDB(app) { db = getFirestore(app); }
 
-let loadedUserData = null; // Данные игрока
+let loadedUserData = null; 
 const MAX_LEVEL = 500;
 const MAX_MASTERY = 500;
 
-// --- ТЕХНИКИ И РЕДКОСТИ (GACHA) ---
 const TECHNIQUES = [
     { name: "Манипуляция П.Э.", rarity: "Common", class: "r-common" },
     { name: "Использование оружия", rarity: "Common", class: "r-common" },
@@ -19,7 +18,6 @@ const TECHNIQUES = [
     { name: "Небесное Ограничение", rarity: "MASTERS", class: "r-masters" }
 ];
 
-// --- СКИЛЛЫ (Требования) ---
 const SKILL_TREE = {
     "common": [
         { id: "punch", name: "Удар П.Э.", reqLvl: 0, reqMas: 0 },
@@ -37,7 +35,6 @@ const SKILL_TREE = {
     ]
 };
 
-// --- ИСТОРИЯ ЮТЫ ---
 const YUTA_STORY = [
     "Больница. Писк монитора. Твоя сестра умерла... но она осталась.",
     "Её душа стала проклятием, чтобы защищать тебя.",
@@ -47,7 +44,7 @@ const YUTA_STORY = [
     "Годжо смеется: «Отлично! А теперь покажи, на что ты способен. Начинаем тренировку!»"
 ];
 
-// --- ПРОВЕРКА ПРОГРЕССА ПРИ ВХОДЕ ---
+// --- ПРОВЕРКА ПРОГРЕССА ---
 export async function checkUserProgress(uid, menuScreen, gameScreen) {
     const userRef = doc(db, "users", uid);
     try {
@@ -56,11 +53,9 @@ export async function checkUserProgress(uid, menuScreen, gameScreen) {
         if (userSnap.exists() && userSnap.data().class) {
             loadedUserData = userSnap.data();
             
-            // Инициализация полей
             if(!loadedUserData.lvl) loadedUserData.lvl = 1;
             if(!loadedUserData.mastery) loadedUserData.mastery = 0;
             if(!loadedUserData.xp) loadedUserData.xp = 0;
-            // tutorialStep: 0 = не прошел, 99 = прошел
             if(loadedUserData.tutorialStep === undefined) loadedUserData.tutorialStep = 0; 
 
             updateStatusUI();
@@ -69,10 +64,9 @@ export async function checkUserProgress(uid, menuScreen, gameScreen) {
             menuScreen.classList.add('hidden');
             gameScreen.classList.remove('hidden');
 
-            // ЕСЛИ НОВИЧОК -> ЗАПУСК ОБУЧЕНИЯ (TUTORIAL)
+            // Запускаем обучение с задержкой, чтобы DOM прогрузился
             if (loadedUserData.tutorialStep === 0) {
-                // Небольшая задержка, чтобы интерфейс прогрузился
-                setTimeout(() => startTutorialSequence(1), 500);
+                setTimeout(() => startTutorialSequence(1), 1000);
             }
 
         } else {
@@ -93,57 +87,56 @@ function updateStatusUI() {
     rEl.className = getRarityClass(loadedUserData.rarity);
 }
 
-// --- СИСТЕМА ОБУЧЕНИЯ (ИНТЕРАКТИВ) ---
+// --- СИСТЕМА ОБУЧЕНИЯ (ИСПРАВЛЕНА) ---
 function startTutorialSequence(step) {
     const overlay = document.getElementById('tutorial-overlay');
     const msg = document.getElementById('tutorial-msg');
     
-    // Включаем затемнение
     overlay.classList.remove('hidden');
 
-    // Убираем старые подсветки
+    // Очистка всех подсветок
     document.querySelectorAll('.highlight-element').forEach(el => el.classList.remove('highlight-element'));
 
     if (step === 1) {
-        // ШАГ 1: Нажать Тренировку
-        msg.textContent = "Годжо: «Нажми ТРЕНИРОВКА, чтобы начать!»";
+        // ШАГ 1: Кнопка Тренировки
+        msg.textContent = "Годжо: «Нажми кнопку ТРЕНИРОВКА!»";
         const btn = document.getElementById('btn-training');
+        
+        // Добавляем класс подсветки
         btn.classList.add('highlight-element');
 
-        // Перехватываем клик
-        const oldOnClick = btn.onclick; // Сохраняем логику кнопки
+        // Переписываем onclick жестко для туториала
         btn.onclick = (e) => {
-            // Снимаем подсветку
-            btn.classList.remove('highlight-element');
-            // Выполняем обычное действие (открыть 3D)
-            open3DTraining(true); // true = это режим обучения
-            // Прячем оверлей на секунду пока грузится сцена
+            e.stopPropagation(); 
+            // Скрываем обучение, чтобы не мешало переходу
             overlay.classList.add('hidden');
+            btn.classList.remove('highlight-element');
+            
+            // Открываем 3D режим
+            open3DTraining(true); 
         };
     } 
     else if (step === 2) {
-        // ШАГ 2: Внутри 3D -> Нажать Удар
+        // ШАГ 2: Кнопка Удар
         overlay.classList.remove('hidden');
-        msg.textContent = "Годжо: «Теперь атакуй! Нажми УДАР.»";
+        msg.textContent = "Годжо: «Отлично! Теперь нажми УДАР.»";
         
         const btnHit = document.getElementById('btn-hit-dummy');
         btnHit.classList.add('highlight-element');
 
         btnHit.onclick = () => {
-             // Логика удара
              performHitAnim();
              addRewards(10, 1);
              
              btnHit.classList.remove('highlight-element');
-             // Переход к шагу 3
              startTutorialSequence(3);
         };
     }
     else if (step === 3) {
         // ШАГ 3: Выход
-        msg.textContent = "Годжо: «Отлично! Нажми ВЫХОД, чтобы сохранить прогресс.»";
+        msg.textContent = "Годжо: «Супер! Нажми ВЫХОД для сохранения.»";
         
-        // Отключаем удар, чтобы не отвлекал
+        // Отключаем удар
         document.getElementById('btn-hit-dummy').onclick = null;
         
         const btnExit = document.getElementById('btn-exit-training');
@@ -156,61 +149,54 @@ function startTutorialSequence(step) {
             document.getElementById('training-hub-container').classList.add('hidden');
             document.getElementById('gameplay-container').classList.remove('hidden');
             
-            // Сохраняем, что обучение пройдено
-            loadedUserData.tutorialStep = 99;
+            loadedUserData.tutorialStep = 99; // Обучение пройдено
             await saveProgress();
             
-            alert("Обучение завершено! Теперь прокачивайся самостоятельно.");
-            
-            // Возвращаем нормальные функции кнопкам
-            setupTrainingButton(); 
+            alert("Обучение завершено!");
+            setupTrainingButton(); // Возвращаем обычную кнопку
         };
     }
 }
 
-// --- КНОПКА ТРЕНИРОВКИ ---
 function setupTrainingButton() {
     const btnTrain = document.getElementById('btn-training');
-    const newBtn = btnTrain.cloneNode(true); // Сброс слушателей
+    const newBtn = btnTrain.cloneNode(true);
     btnTrain.parentNode.replaceChild(newBtn, btnTrain);
     
     newBtn.addEventListener('click', () => {
-        // Если это Юта и он еще не видел историю (но обучение прошел или скипнул)
         if ((loadedUserData.class.includes("Юта") || loadedUserData.class.includes("Копирование")) && !loadedUserData.storySeen) {
             startStory(YUTA_STORY, "История: Юта", false, () => {
-                // После истории открываем 3D
                 loadedUserData.storySeen = true;
                 saveProgress();
                 open3DTraining(false); 
             });
         } else {
-            // Обычный вход
             open3DTraining(false);
         }
     });
 }
 
-// --- 3D ТРЕНИРОВКА ---
+// --- 3D РЕЖИМ ---
 function open3DTraining(isTutorial) {
     document.getElementById('gameplay-container').classList.add('hidden');
     document.getElementById('story-container').classList.add('hidden');
     document.getElementById('training-hub-container').classList.remove('hidden');
 
     updateTrainingHUD();
-    renderSkills(isTutorial); // В туториале все открыто
+    renderSkills(isTutorial);
 
     const btnHit = document.getElementById('btn-hit-dummy');
     const btnExit = document.getElementById('btn-exit-training');
 
     if (isTutorial) {
-        // Если обучение -> запускаем Шаг 2
-        setTimeout(() => startTutorialSequence(2), 300);
+        // Если это обучение, запускаем шаг 2 через полсекунды
+        setTimeout(() => startTutorialSequence(2), 500);
     } else {
-        // ОБЫЧНЫЙ РЕЖИМ
+        // Обычный режим
         btnHit.onclick = () => {
             performHitAnim();
             addRewards(5, 1);
-            renderSkills(false); // Проверка на новые скиллы
+            renderSkills(false);
         };
 
         btnExit.onclick = async () => {
@@ -225,10 +211,8 @@ function open3DTraining(isTutorial) {
 function performHitAnim() {
     const cube = document.getElementById('dummy-cube');
     cube.classList.remove('hit-anim');
-    void cube.offsetWidth; // Триггер
+    void cube.offsetWidth; 
     cube.classList.add('hit-anim');
-    
-    // Случайный поворот
     const rx = -20 + (Math.random() * 20 - 10);
     const ry = 45 + (Math.random() * 40 - 20);
     cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
@@ -240,7 +224,6 @@ function addRewards(xp, mas) {
         if (loadedUserData.xp >= loadedUserData.lvl * 100) {
             loadedUserData.lvl++;
             loadedUserData.xp = 0;
-            // Визуальный эффект уровня можно добавить тут
         }
     }
     if (loadedUserData.mastery < MAX_MASTERY) {
@@ -254,7 +237,6 @@ function updateTrainingHUD() {
     document.getElementById('train-mastery').textContent = loadedUserData.mastery;
 }
 
-// ОТРИСОВКА СКИЛЛОВ
 function renderSkills(unlockAll) {
     const list = document.getElementById('skills-panel');
     list.innerHTML = "";
@@ -272,24 +254,20 @@ function renderSkills(unlockAll) {
 
         const card = document.createElement('div');
         card.className = `skill-card ${isUnlocked ? '' : 'locked'}`;
-        
-        let subtext = isUnlocked ? "Готово" : `Lvl ${skill.reqLvl}`;
-        
-        card.innerHTML = `<strong>${skill.name}</strong><br>${subtext}`;
+        card.innerHTML = `<strong>${skill.name}</strong><br>${isUnlocked ? "Готово" : "Lvl " + skill.reqLvl}`;
         
         card.onclick = () => {
             if(isUnlocked) {
-                performHitAnim(); // Использование скилла тоже бьет
-                addRewards(20, 2); // Больше наград
+                performHitAnim();
+                addRewards(20, 2);
             } else {
-                alert(`Нужен Уровень ${skill.reqLvl} и Мастерство ${skill.reqMas}`);
+                alert(`Нужен Lvl ${skill.reqLvl} и Mastery ${skill.reqMas}`);
             }
         };
         list.appendChild(card);
     });
 }
 
-// --- СОХРАНЕНИЕ ---
 async function saveProgress() {
     if (!loadedUserData) return;
     const userRef = doc(db, "users", loadedUserData.uid || currentUserUid);
@@ -301,8 +279,6 @@ async function saveProgress() {
         storySeen: loadedUserData.storySeen || false
     }, { merge: true });
 }
-
-// --- СТАНДАРТНЫЕ ФУНКЦИИ (История, Гача, Сброс) ---
 
 export function startStory(storyArray, titleText, showChoicesAtEnd, callback = null) {
     const storyContainer = document.getElementById('story-container');
@@ -376,7 +352,6 @@ function spinRoulette() {
     const rarityEl = document.getElementById('spin-rarity');
     resultEl.textContent = "...";
     
-    // Рандом
     const rand = Math.random() * 100;
     let rarityPool = "Common";
     if (rand < 50) rarityPool = "Common";
@@ -389,11 +364,9 @@ function spinRoulette() {
     
     currentSpunTechnique = won;
     spinsLeft--;
-    
     resultEl.textContent = won.name;
     rarityEl.textContent = won.rarity;
     rarityEl.className = `spin-rarity ${getRarityClass(won.rarity)}`;
-    
     updateSpinUI();
 }
 
@@ -408,7 +381,6 @@ function getRarityClass(rarity) {
     return `r-${rarity.toLowerCase()}`;
 }
 
-// ВАЖНОЕ СОХРАНЕНИЕ ПРИ СОЗДАНИИ
 async function saveGameData(className, rarity) {
     const newData = {
         class: className,
@@ -417,7 +389,7 @@ async function saveGameData(className, rarity) {
         lvl: 1,
         mastery: 0,
         xp: 0,
-        tutorialStep: 0, // 0 = НУЖЕН ТУТОРИАЛ
+        tutorialStep: 0, // ВАЖНО: Нужен туториал
         storySeen: false,
         createdAt: new Date()
     };
@@ -427,7 +399,6 @@ async function saveGameData(className, rarity) {
     document.getElementById('spin-container').classList.add('hidden');
     document.getElementById('story-container').classList.add('hidden');
     
-    // Перезапуск проверки для старта туториала
     checkUserProgress(loadedUserData.uid || currentUserUid, 
                       document.getElementById('menu-container'), 
                       document.getElementById('gameplay-container'));
@@ -448,5 +419,4 @@ export async function resetUserData(uid) {
     return true;
 }
 
-// Присваиваем UID глобально при входе
 export function setGlobalUid(uid) { currentUserUid = uid; }
