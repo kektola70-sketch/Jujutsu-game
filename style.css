@@ -1,104 +1,135 @@
 :root {
-    --bg-color: #0d0d10;
-    --card-bg: #1a1a20;
+    --bg-color: #050505;
     --primary: #5e17eb; 
-    --accent: #ff0055;  
-    --text: #ffffff;
-    --text-dim: #a0a0a0;
-    
-    /* Цвета редкости */
-    --common: #b0b0b0;
-    --uncommon: #4caf50;
-    --rare: #03a9f4;
-    --epic: #9c27b0;
-    --mythic: #ff9800;
-    --legendary: #ffeb3b;
-    --masters: #ff0055; /* Анимированный красный */
+    --accent: #ff0055;
+    --text: #fff;
+    --glass: rgba(20, 20, 25, 0.85);
 }
 
 body {
     background-color: var(--bg-color);
     color: var(--text);
-    font-family: 'Courier New', Courier, monospace;
-    display: flex; justify-content: center; align-items: center;
-    height: 100vh; margin: 0; overflow: hidden;
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    overflow: hidden; /* Важно для 3D сцены */
+    height: 100vh;
+    perspective: 1000px; /* Глубина 3D */
+}
+
+/* UI LAYER */
+#ui-layer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none; /* Пропускаем клики сквозь пустые места */
+}
+
+/* Включаем клики для контейнеров */
+.container, .modal, .hud-top, .hud-bottom {
+    pointer-events: auto;
 }
 
 .container {
     width: 90%; max-width: 400px; text-align: center;
-    animation: fadeIn 0.5s ease-in-out; position: relative; z-index: 1;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    position: relative;
+    background: var(--glass);
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid #333;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 30px rgba(94, 23, 235, 0.2);
 }
 
 .hidden { display: none !important; }
 
-/* АВТОРИЗАЦИЯ И ОБЩЕЕ */
-.title { font-size: 2rem; text-shadow: 0 0 10px var(--primary); margin-bottom: 5px; }
-.subtitle { color: var(--text-dim); margin-bottom: 20px; }
-.auth-box { background: var(--card-bg); padding: 20px; border-radius: 10px; border: 1px solid #333; }
-input, select { width: 100%; padding: 12px; margin: 8px 0; background: #25252e; border: 1px solid #333; color: white; border-radius: 5px; outline: none; box-sizing: border-box; }
+/* КНОПКИ И INPUTS (как раньше) */
+input, select { width: 100%; padding: 12px; margin: 8px 0; background: #222; border: 1px solid #444; color: white; border-radius: 5px; }
 .btn { width: 100%; padding: 12px; margin: 5px 0; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-.btn:active { transform: scale(0.98); }
 .primary { background: var(--primary); color: white; }
 .secondary { background: #333; color: white; }
-.google { background: #db4437; color: white; }
+.error-btn { border: 1px solid red; color: red; }
 
-/* МЕНЮ */
-.profile-header { background: var(--card-bg); padding: 15px; border-radius: 10px; display: flex; align-items: center; gap: 15px; border-left: 4px solid var(--primary); margin-bottom: 30px; }
-.avatar { width: 50px; height: 50px; background: #333; border-radius: 50%; border: 2px solid var(--text-dim); }
-.user-info { display: flex; flex-direction: column; align-items: flex-start; }
-.rank { font-size: 0.8rem; color: var(--accent); font-weight: bold; }
-.menu-btn { background: transparent; border: 1px solid var(--text-dim); color: var(--text); padding: 15px; font-size: 1.1rem; }
-.start-btn { background: var(--accent); border: none; box-shadow: 0 0 15px rgba(255, 0, 85, 0.4); color: white; }
-
-/* ИСТОРИЯ */
-.story-text { font-size: 1.1rem; font-family: 'Times New Roman', serif; font-style: italic; line-height: 1.5; margin-bottom: 20px; text-align: justify; background: rgba(20, 0, 0, 0.5); padding: 15px; border-radius: 5px; border-left: 3px solid var(--accent); }
-.choice-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-.choice-card { background: #25252e; border: 1px solid var(--primary); padding: 15px; border-radius: 8px; cursor: pointer; text-align: left; transition: 0.3s; }
-.choice-card:hover { background: var(--primary); transform: scale(1.02); }
-.choice-title { font-weight: bold; display: block; color: #fff; }
-.choice-desc { font-size: 0.8rem; color: #ccc; font-style: italic; }
-
-/* РУЛЕТКА (GACHA) */
-.spin-box {
-    margin: 20px 0;
-    padding: 30px;
-    background: radial-gradient(circle, #2a2a35 0%, #1a1a20 100%);
-    border: 2px solid var(--text-dim);
-    border-radius: 15px;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+/* --- 3D SCENE --- */
+.scene {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1; /* Под UI */
+    background: radial-gradient(circle, #1a1a20 0%, #000 90%);
+    overflow: hidden;
 }
 
-.spin-result {
-    font-size: 1.5rem;
-    font-weight: bold;
-    min-height: 50px;
-    display: flex; align-items: center; justify-content: center;
-    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+.cube {
+    width: 150px; height: 150px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(45deg);
+    transition: transform 0.2s;
 }
 
-.spin-rarity {
-    margin-top: 10px;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+.face {
+    position: absolute;
+    width: 150px; height: 150px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--primary);
+    display: flex; justify-content: center; align-items: center;
+    font-size: 3rem;
+    color: var(--primary);
+    box-shadow: 0 0 15px var(--primary);
 }
 
-/* Цвета текста редкости */
-.r-common { color: var(--common); }
-.r-uncommon { color: var(--uncommon); }
-.r-rare { color: var(--rare); }
-.r-epic { color: var(--epic); }
-.r-mythic { color: var(--mythic); text-shadow: 0 0 5px var(--mythic); }
-.r-legendary { color: var(--legendary); text-shadow: 0 0 8px var(--legendary); }
-.r-masters { 
-    color: var(--masters); 
-    text-shadow: 0 0 10px var(--masters), 0 0 20px red; 
-    animation: pulse 1s infinite alternate;
+.front  { transform: translateZ(75px); }
+.back   { transform: rotateY(180deg) translateZ(75px); }
+.right  { transform: rotateY(90deg) translateZ(75px); }
+.left   { transform: rotateY(-90deg) translateZ(75px); }
+.top    { transform: rotateX(90deg) translateZ(75px); }
+.bottom { transform: rotateX(-90deg) translateZ(75px); }
+
+/* Анимация удара */
+.hit-anim {
+    animation: shake 0.3s ease-in-out;
+}
+@keyframes shake {
+    0% { transform: rotateX(-20deg) rotateY(45deg) scale(1); }
+    50% { transform: rotateX(-20deg) rotateY(200deg) scale(0.9); }
+    100% { transform: rotateX(-20deg) rotateY(45deg) scale(1); }
 }
 
-@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+.floor {
+    position: absolute;
+    width: 1000px; height: 1000px;
+    background: repeating-linear-gradient(45deg, #222 0, #222 1px, transparent 0, transparent 50px);
+    transform: rotateX(90deg) translateZ(-150px);
+    opacity: 0.3;
+}
+
+/* HUD ТРЕНИРОВКИ */
+.hud-top {
+    position: absolute; top: 20px; width: 100%;
+    display: flex; justify-content: space-around;
+    font-size: 1.2rem; font-weight: bold; text-shadow: 0 0 5px black;
+    z-index: 20;
+}
+.hud-bottom {
+    position: absolute; bottom: 20px; width: 90%; left: 5%;
+    display: flex; flex-direction: column; gap: 10px;
+    z-index: 20;
+}
+.hit-btn { height: 60px; font-size: 1.5rem; background: rgba(255, 0, 85, 0.8); border: 2px solid #fff; }
+.skills-panel {
+    display: flex; gap: 10px; overflow-x: auto; padding: 10px;
+    background: rgba(0,0,0,0.6); border-radius: 10px;
+}
+.skill-card {
+    min-width: 120px; padding: 10px; background: #222; border: 1px solid #555;
+    border-radius: 5px; font-size: 0.8rem; text-align: center;
+}
+.skill-card.locked { opacity: 0.5; filter: grayscale(1); }
+.skill-card.tutorial { border-color: gold; box-shadow: 0 0 10px gold; }
