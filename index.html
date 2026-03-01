@@ -48,7 +48,7 @@
         </div>
     </div>
 
-    <!-- ЭКРАН 3: Настройки + СБРОС -->
+    <!-- ЭКРАН 3: Настройки -->
     <div id="settings-modal" class="modal hidden">
         <div class="modal-content">
             <h2>Настройки</h2>
@@ -63,16 +63,14 @@
                     <option value="high" selected>Высокая</option>
                 </select>
             </div>
-            
             <button id="btn-close-settings" class="btn primary">Сохранить</button>
-            
             <hr style="border-color: #333; margin: 15px 0;">
-            <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">ОПАСНАЯ ЗОНА</p>
+            <p style="font-size: 0.8rem; color: #666;">ОПАСНАЯ ЗОНА</p>
             <button id="btn-reset-progress" class="btn secondary" style="border: 1px solid var(--accent); color: var(--accent);">СБРОСИТЬ ПРОГРЕСС</button>
         </div>
     </div>
 
-    <!-- ЭКРАН 4: История -->
+    <!-- ЭКРАН 4: История / Катсцены -->
     <div id="story-container" class="container hidden">
         <h2 id="story-title" class="story-header">Воспоминание</h2>
         <div class="story-text" id="story-text"></div>
@@ -103,7 +101,8 @@
             <p>Редкость: <span id="player-rarity-display">-</span></p>
         </div>
         <div class="menu-buttons" style="margin-top: 20px;">
-            <button class="btn primary">Тренировка</button>
+            <!-- ДОБАВИЛИ ID СЮДА -->
+            <button id="btn-training" class="btn primary">Тренировка (Сюжет)</button>
             <button id="btn-back-to-menu" class="btn secondary">Вернуться в меню</button>
         </div>
     </div>
