@@ -1,4 +1,4 @@
-// Импорт функций из CDN (работает прямо в браузере)
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
     getAuth, 
@@ -11,7 +11,10 @@ import {
     signOut
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// Твоя конфигурация
+// Импортируем нашу новую логику меню
+import { initMenu, updateProfileUI } from "./menu.js";
+
+// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDpNFC0W1PRJ2Q3L0i7D7iSBWfKwhhNezs",
   authDomain: "jujutsu-game.firebaseapp.com",
@@ -22,106 +25,89 @@ const firebaseConfig = {
   measurementId: "G-2F9RFQV09Y"
 };
 
-// Инициализация
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Элементы DOM
+// Инициализируем логику меню (передаем auth и функцию выхода)
+initMenu(auth, signOut);
+
+// Элементы DOM для Авторизации
 const authContainer = document.getElementById('auth-container');
-const gameContainer = document.getElementById('game-container');
+const menuContainer = document.getElementById('menu-container');
+const gameContainer = document.getElementById('gameplay-container'); // На всякий случай
+
 const emailInput = document.getElementById('email');
 const passInput = document.getElementById('password');
 const errorMsg = document.getElementById('error-message');
-const userDisplay = document.getElementById('user-display');
-const userUid = document.getElementById('user-uid');
 
-// --- ЛОГИКА АВТОРИЗАЦИИ ---
+// --- ЛОГИКА АВТОРИЗАЦИИ (Вход) ---
 
-// 1. Регистрация (Email/Pass)
+// 1. Регистрация
 document.getElementById('btn-register').addEventListener('click', () => {
     const email = emailInput.value;
     const password = passInput.value;
-    
     createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            console.log("Регистрация успешна:", userCredential.user);
-        })
-        .catch((error) => {
-            showError(error.message);
-        });
+        .catch((error) => showError(error.message));
 });
 
-// 2. Вход (Email/Pass)
+// 2. Вход
 document.getElementById('btn-login').addEventListener('click', () => {
     const email = emailInput.value;
     const password = passInput.value;
-
     signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            console.log("Вход успешен:", userCredential.user);
-        })
-        .catch((error) => {
-            showError(error.message);
-        });
+        .catch((error) => showError(error.message));
 });
 
-// 3. Google Вход
+// 3. Google
 document.getElementById('btn-google').addEventListener('click', () => {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-        .then((result) => {
-            console.log("Google вход:", result.user);
-        })
-        .catch((error) => {
-            showError(error.message);
-        });
+    signInWithPopup(auth, provider).catch((error) => showError(error.message));
 });
 
-// 4. Анонимный вход
+// 4. Аноним
 document.getElementById('btn-anon').addEventListener('click', () => {
-    signInAnonymously(auth)
-        .then(() => {
-            console.log("Анонимный вход выполнен");
-        })
-        .catch((error) => {
-            showError(error.message);
-        });
+    signInAnonymously(auth).catch((error) => showError(error.message));
 });
 
-// 5. Выход
-document.getElementById('btn-logout').addEventListener('click', () => {
-    signOut(auth).then(() => {
-        console.log("Выход выполнен");
-        // Очистка полей
-        emailInput.value = '';
-        passInput.value = '';
-    });
-});
 
-// --- СЛУШАТЕЛЬ СОСТОЯНИЯ ---
-// Эта функция срабатывает автоматически при входе или выходе
+// --- ГЛАВНЫЙ СЛУШАТЕЛЬ СОСТОЯНИЯ ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Пользователь вошел -> Показываем игру, скрываем вход
-        authContainer.classList.add('hidden');
-        gameContainer.classList.remove('hidden');
+        // ПОЛЬЗОВАТЕЛЬ ВОШЕЛ
+        console.log("User in:", user.uid);
         
-        userDisplay.textContent = user.email || "Неизвестный маг (Аноним)";
-        userUid.textContent = user.uid;
+        // 1. Скрываем вход
+        authContainer.classList.add('hidden');
+        
+        // 2. Обновляем имя в меню
+        updateProfileUI(user);
+
+        // 3. Показываем меню (убеждаемся, что игра скрыта)
+        menuContainer.classList.remove('hidden');
+        gameContainer.classList.add('hidden');
+
         errorMsg.textContent = "";
     } else {
-        // Пользователь вышел -> Показываем вход, скрываем игру
+        // ПОЛЬЗОВАТЕЛЬ ВЫШЕЛ
+        console.log("User out");
+        
+        // Показываем вход, скрываем остальное
         authContainer.classList.remove('hidden');
+        menuContainer.classList.add('hidden');
         gameContainer.classList.add('hidden');
+        
+        // Чистим поля
+        if(emailInput) emailInput.value = '';
+        if(passInput) passInput.value = '';
     }
 });
 
 function showError(message) {
-    // Упрощаем сообщения об ошибках от Firebase
     if(message.includes("auth/invalid-email")) message = "Неверный формат Email";
-    if(message.includes("auth/weak-password")) message = "Пароль слишком слабый (нужно 6+ символов)";
-    if(message.includes("auth/wrong-password")) message = "Неверный пароль";
-    if(message.includes("auth/email-already-in-use")) message = "Такой маг уже зарегистрирован";
+    if(message.includes("auth/weak-password")) message = "Пароль слишком слабый";
+    if(message.includes("auth/wrong-password") || message.includes("auth/invalid-credential")) message = "Ошибка входа";
+    if(message.includes("auth/email-already-in-use")) message = "Email занят";
     
     errorMsg.textContent = message;
 }
