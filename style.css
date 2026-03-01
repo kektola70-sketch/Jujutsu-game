@@ -1,53 +1,61 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap');
-body { margin: 0; overflow: hidden; background: #000; font-family: 'Oswald', sans-serif; color: white; user-select: none; }
-
-/* ... (Старые стили кнопок и меню оставляем те же) ... */
-.screen { position: fixed; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #111; z-index: 20; }
-.box { background: rgba(20,20,20,0.9); padding: 20px; border: 2px solid #5e187a; border-radius: 10px; text-align: center; }
-.menu-btn { width: 100%; padding: 15px; margin: 5px 0; background: #333; color: white; border: none; font-family: inherit; }
-.menu-btn.primary { background: #5e187a; }
-
-/* ИГРОВОЙ UI */
-#game-ui { position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
-.top-bar { display: flex; justify-content: space-between; padding: 10px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
-.hp-wrapper { width: 40%; }
-.hp-bar { height: 10px; background: #333; border: 1px solid white; }
-.hp-fill { height: 100%; background: lime; width: 100%; }
-.enemy .hp-fill { background: red; }
-
-#controls-layer { position: absolute; width: 100%; height: 100%; }
-#joystick-zone { position: absolute; bottom: 50px; left: 50px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; pointer-events: auto; }
-#joystick-knob { position: absolute; top: 50%; left: 50%; width: 50px; height: 50px; background: #9d00ff; border-radius: 50%; transform: translate(-50%,-50%); }
-#camera-touch-zone { position: absolute; right: 0; width: 50%; height: 100%; pointer-events: auto; }
-
-.combat-buttons { position: absolute; bottom: 30px; right: 30px; pointer-events: auto; display: flex; flex-direction: column; align-items: flex-end; }
-.c-btn { border-radius: 50%; background: rgba(0,0,0,0.5); border: 2px solid white; color: white; margin: 5px; }
-.big { width: 80px; height: 80px; font-size: 2rem; border-color: red; }
-.medium { width: 60px; height: 60px; font-size: 1.5rem; border-color: orange; }
-.domain-btn { width: 150px; height: 40px; border-radius: 20px; background: black; border-color: cyan; animation: pulse 1s infinite; }
-
-/* KINEMATIC BARS (Кино режим) */
-#cinematic-bars { display: none; position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 0; }
-.bar { position: absolute; width: 100%; height: 15%; background: black; transition: 0.5s; }
-.bar.top { top: -15%; } /* Спрятано */
-.bar.bottom { bottom: -15%; } /* Спрятано */
-/* Когда класс активен */
-.cinematic-active .bar.top { top: 0; }
-.cinematic-active .bar.bottom { bottom: 0; }
-
-/* UI ДИАЛОГОВ */
-#cutscene-ui { position: absolute; bottom: 0; width: 100%; display: none; justify-content: center; padding-bottom: 20px; pointer-events: auto; z-index: 100; }
-.dialogue-container { 
-    width: 80%; background: rgba(0,0,0,0.85); 
-    border: 2px solid #9d00ff; border-radius: 10px; padding: 20px; position: relative;
-}
-#d-name { color: cyan; margin: 0 0 10px 0; text-transform: uppercase; }
-#d-text { font-size: 1.2rem; line-height: 1.4; margin: 0 0 20px 0; }
-#btn-next-dialogue {
-    position: absolute; bottom: 10px; right: 10px;
-    background: #5e187a; color: white; border: none; padding: 5px 15px;
-    font-family: inherit; cursor: pointer; animation: bounce 1s infinite;
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
 
-@keyframes pulse { 50% { box-shadow: 0 0 15px cyan; } }
-@keyframes bounce { 50% { transform: translateY(3px); } }
+.container {
+    text-align: center;
+    background: #1e1e24;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 0 20px #4a148c; /* Фиолетовое свечение */
+    width: 90%;
+    max-width: 400px;
+}
+
+.hidden {
+    display: none;
+}
+
+input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    background: #2c2c35;
+    border: 1px solid #333;
+    color: white;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.primary { background-color: #6200ea; color: white; }
+.secondary { background-color: #00bfa5; color: black; }
+.google { background-color: #db4437; color: white; }
+.anon { background-color: #757575; color: white; }
+.logout { background-color: #d32f2f; color: white; margin-top: 20px;}
+
+.btn:hover { opacity: 0.9; }
+
+.error {
+    color: #ff5252;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
