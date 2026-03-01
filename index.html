@@ -48,7 +48,7 @@
         </div>
     </div>
 
-    <!-- ЭКРАН 3: Настройки -->
+    <!-- ЭКРАН 3: Настройки + СБРОС -->
     <div id="settings-modal" class="modal hidden">
         <div class="modal-content">
             <h2>Настройки</h2>
@@ -63,36 +63,32 @@
                     <option value="high" selected>Высокая</option>
                 </select>
             </div>
+            
             <button id="btn-close-settings" class="btn primary">Сохранить</button>
+            
+            <hr style="border-color: #333; margin: 15px 0;">
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">ОПАСНАЯ ЗОНА</p>
+            <button id="btn-reset-progress" class="btn secondary" style="border: 1px solid var(--accent); color: var(--accent);">СБРОСИТЬ ПРОГРЕСС</button>
         </div>
     </div>
 
-    <!-- ЭКРАН 4: История (Кендзяку) -->
+    <!-- ЭКРАН 4: История -->
     <div id="story-container" class="container hidden">
         <h2 id="story-title" class="story-header">Воспоминание</h2>
-        <div class="story-text" id="story-text">
-            <!-- Текст сюжета -->
-        </div>
-        
-        <div id="choice-container" class="choice-grid hidden">
-            <!-- Карточки выбора -->
-        </div>
-
+        <div class="story-text" id="story-text"></div>
+        <div id="choice-container" class="choice-grid hidden"></div>
         <button id="btn-next-story" class="btn secondary">Далее</button>
     </div>
 
-    <!-- ЭКРАН 5: Рулетка Техник (GACHA) -->
+    <!-- ЭКРАН 5: Рулетка (GACHA) -->
     <div id="spin-container" class="container hidden">
         <h1 class="menu-title">ПРОБУЖДЕНИЕ</h1>
-        <p>Кендзяку наблюдает, какая техника проявится...</p>
-        
+        <p>Кендзяку наблюдает...</p>
         <div class="spin-box">
             <div id="spin-result" class="spin-result">?</div>
             <p id="spin-rarity" class="spin-rarity">Нажми "Пробудить"</p>
         </div>
-
         <p>Осталось попыток: <strong id="spins-left" style="color: var(--primary); font-size: 1.2em;">10</strong></p>
-
         <button id="btn-spin" class="btn primary start-btn">ПРОБУДИТЬ (SPIN)</button>
         <button id="btn-accept-spin" class="btn secondary hidden">ПРИНЯТЬ ЭТУ СИЛУ</button>
     </div>
@@ -100,14 +96,12 @@
     <!-- ЭКРАН 6: Игра (Статус) -->
     <div id="gameplay-container" class="container hidden">
         <h1 class="menu-title">СТАТУС ШАМАНА</h1>
-        
         <div class="auth-box status-box">
             <p>Техника: <strong id="player-class-display" style="color: var(--primary); font-size: 1.2rem;">-</strong></p>
             <p>Ранг: <strong id="player-rank-display" style="color: var(--text-dim)">-</strong></p>
             <hr style="border-color: #333; margin: 10px 0;">
             <p>Редкость: <span id="player-rarity-display">-</span></p>
         </div>
-
         <div class="menu-buttons" style="margin-top: 20px;">
             <button class="btn primary">Тренировка</button>
             <button id="btn-back-to-menu" class="btn secondary">Вернуться в меню</button>
