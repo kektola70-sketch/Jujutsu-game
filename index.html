@@ -10,19 +10,21 @@
 
     <!-- ЭКРАН 1: Авторизация -->
     <div id="auth-container" class="container">
-        <h1 class="title">Jujutsu Kaisen</h1>
-        <p class="subtitle">Вход в мир магии</p>
+        <h1 class="title">JUJUTSU KAISEN</h1>
+        <p class="subtitle">Мир Проклятий</p>
         
         <div class="auth-box">
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Пароль">
+            
             <div class="buttons-row">
                 <button id="btn-login" class="btn primary">Войти</button>
                 <button id="btn-register" class="btn secondary">Регистрация</button>
             </div>
+
             <div class="divider">или</div>
-            <button id="btn-google" class="btn google">Google</button>
-            <button id="btn-anon" class="btn anon">Аноним</button>
+            <button id="btn-google" class="btn google">Google Вход</button>
+            <button id="btn-anon" class="btn anon">Анонимный вход</button>
         </div>
         <p id="error-message" class="error"></p>
     </div>
@@ -30,14 +32,14 @@
     <!-- ЭКРАН 2: Главное Меню -->
     <div id="menu-container" class="container hidden">
         <div class="profile-header">
-            <div class="avatar" id="avatar-display"></div>
+            <div class="avatar"></div>
             <div class="user-info">
                 <span id="menu-username">Загрузка...</span>
                 <span id="menu-rank" class="rank">Не маг</span>
             </div>
         </div>
 
-        <h1 class="menu-title">МЕНЮ</h1>
+        <h1 class="menu-title">ГЛАВНОЕ МЕНЮ</h1>
 
         <div class="menu-buttons">
             <button id="btn-start-game" class="btn menu-btn start-btn">НАЧАТЬ МИССИЮ</button>
@@ -46,7 +48,7 @@
         </div>
     </div>
 
-    <!-- ЭКРАН 3: Настройки (Модальное окно) -->
+    <!-- ЭКРАН 3: Настройки -->
     <div id="settings-modal" class="modal hidden">
         <div class="modal-content">
             <h2>Настройки</h2>
@@ -55,46 +57,63 @@
                 <input type="checkbox" id="setting-sound" checked>
             </div>
             <div class="setting-item">
-                <label>Музыка</label>
-                <input type="checkbox" id="setting-music" checked>
-            </div>
-            <div class="setting-item">
-                <label>Эффекты проклятий (Графика)</label>
+                <label>Графика проклятий</label>
                 <select id="setting-graphics">
-                    <option value="low">Низкие</option>
-                    <option value="high" selected>Высокие</option>
+                    <option value="low">Низкая</option>
+                    <option value="high" selected>Высокая</option>
                 </select>
             </div>
             <button id="btn-close-settings" class="btn primary">Сохранить</button>
         </div>
     </div>
 
-    <!-- ЭКРАН 4: Обучение / История -->
+    <!-- ЭКРАН 4: История (Кендзяку) -->
     <div id="story-container" class="container hidden">
-        <h2 id="story-title">Воспоминание...</h2>
+        <h2 id="story-title" class="story-header">Воспоминание</h2>
         <div class="story-text" id="story-text">
-            <!-- Текст сюжета будет здесь -->
+            <!-- Текст сюжета -->
         </div>
         
-        <!-- Блок выбора (появится позже) -->
         <div id="choice-container" class="choice-grid hidden">
             <!-- Карточки выбора -->
         </div>
 
-        <button id="btn-next-story" class="btn secondary">Продолжить</button>
+        <button id="btn-next-story" class="btn secondary">Далее</button>
     </div>
 
-    <!-- ЭКРАН 5: Игра -->
-    <div id="gameplay-container" class="container hidden">
-        <h1>БИТВА</h1>
-        <p>Ваш класс: <span id="player-class-display">-</span></p>
-        <div class="battle-area">
-            <p>Здесь будет боевая система...</p>
+    <!-- ЭКРАН 5: Рулетка Техник (GACHA) -->
+    <div id="spin-container" class="container hidden">
+        <h1 class="menu-title">ПРОБУЖДЕНИЕ</h1>
+        <p>Кендзяку наблюдает, какая техника проявится...</p>
+        
+        <div class="spin-box">
+            <div id="spin-result" class="spin-result">?</div>
+            <p id="spin-rarity" class="spin-rarity">Нажми "Пробудить"</p>
         </div>
-        <button id="btn-back-to-menu" class="btn secondary">Вернуться в меню</button>
+
+        <p>Осталось попыток: <strong id="spins-left" style="color: var(--primary); font-size: 1.2em;">10</strong></p>
+
+        <button id="btn-spin" class="btn primary start-btn">ПРОБУДИТЬ (SPIN)</button>
+        <button id="btn-accept-spin" class="btn secondary hidden">ПРИНЯТЬ ЭТУ СИЛУ</button>
     </div>
 
-    <!-- Скрипты -->
+    <!-- ЭКРАН 6: Игра (Статус) -->
+    <div id="gameplay-container" class="container hidden">
+        <h1 class="menu-title">СТАТУС ШАМАНА</h1>
+        
+        <div class="auth-box status-box">
+            <p>Техника: <strong id="player-class-display" style="color: var(--primary); font-size: 1.2rem;">-</strong></p>
+            <p>Ранг: <strong id="player-rank-display" style="color: var(--text-dim)">-</strong></p>
+            <hr style="border-color: #333; margin: 10px 0;">
+            <p>Редкость: <span id="player-rarity-display">-</span></p>
+        </div>
+
+        <div class="menu-buttons" style="margin-top: 20px;">
+            <button class="btn primary">Тренировка</button>
+            <button id="btn-back-to-menu" class="btn secondary">Вернуться в меню</button>
+        </div>
+    </div>
+
     <script type="module" src="main.js"></script>
 </body>
 </html>
