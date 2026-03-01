@@ -1,6 +1,6 @@
 :root {
     --bg-color: #050505;
-    --card-bg: rgba(26, 26, 32, 0.9);
+    --card-bg: rgba(26, 26, 32, 0.95);
     --primary: #5e17eb; 
     --accent: #ff0055;  
     --text: #ffffff;
@@ -23,7 +23,7 @@ body {
     margin: 0;
     overflow: hidden;
     height: 100vh;
-    perspective: 1000px; /* Глубина для 3D */
+    perspective: 1000px;
 }
 
 /* UI LAYER */
@@ -31,7 +31,7 @@ body {
     position: absolute;
     width: 100%; height: 100%;
     z-index: 10;
-    pointer-events: none; /* Пропускаем клики сквозь пустоту */
+    pointer-events: none; 
     display: flex; justify-content: center; align-items: center;
 }
 
@@ -47,6 +47,7 @@ body {
     backdrop-filter: blur(5px);
     box-shadow: 0 0 30px rgba(94, 23, 235, 0.2);
     animation: fadeIn 0.5s;
+    position: relative; /* Важно для z-index */
 }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -60,31 +61,34 @@ input, select { width: 100%; padding: 12px; margin: 8px 0; background: #222; bor
 .secondary { background: #333; color: white; }
 .error-btn { border: 1px solid red; color: red; background: transparent; }
 
-/* ОБУЧЕНИЕ (TUTORIAL) */
+/* --- ОБУЧЕНИЕ (TUTORIAL FIX) --- */
 #tutorial-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85); /* Темный фон */
-    z-index: 9000;
-    pointer-events: auto; /* Блокирует все клики */
-    display: flex; justify-content: center; align-items: center;
+    background: rgba(0, 0, 0, 0.85); 
+    z-index: 9000; /* Очень высокий слой */
+    pointer-events: auto; /* Блокирует клики во всё, кроме подсветки */
+    display: flex; justify-content: center; align-items: flex-start; /* Текст сверху */
+    padding-top: 50px;
 }
 
 .tutorial-tooltip {
-    position: absolute; top: 15%;
     background: var(--primary); color: white;
     padding: 15px; border-radius: 10px; font-weight: bold;
     box-shadow: 0 0 20px var(--primary);
     animation: bounce 1s infinite;
     max-width: 80%; text-align: center;
+    pointer-events: none; /* ВАЖНО: Клики проходят сквозь текст! */
+    margin-top: 20px;
 }
 
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-/* Подсветка активной кнопки в обучении */
+/* Подсветка активной кнопки */
 .highlight-element {
     position: relative;
-    z-index: 9001 !important; /* Выше затемнения */
-    box-shadow: 0 0 30px gold, 0 0 50px red !important;
+    z-index: 9999 !important; /* Выше всего на свете */
+    background-color: var(--primary) !important; /* Ярче */
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.85), 0 0 30px gold !important; /* Затемнение вокруг */
     border: 2px solid white !important;
     animation: pulse 1s infinite;
     pointer-events: auto !important; /* Разрешаем клик */
@@ -160,7 +164,7 @@ input, select { width: 100%; padding: 12px; margin: 8px 0; background: #222; bor
 .skill-card.locked { opacity: 0.5; filter: grayscale(1); }
 .skill-card strong { color: var(--primary); display: block; margin-bottom: 3px; }
 
-/* Цвета редкости для текста */
+/* Цвета редкости */
 .r-common { color: var(--common); }
 .r-legendary { color: var(--legendary); text-shadow: 0 0 5px var(--legendary); }
 .r-masters { color: var(--masters); text-shadow: 0 0 10px red; animation: pulse 1s infinite; }
