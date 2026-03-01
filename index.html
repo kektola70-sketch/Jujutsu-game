@@ -8,12 +8,17 @@
 </head>
 <body>
 
-    <!-- UI СЛОЙ (2D поверх 3D) -->
+    <!-- СЛОЙ ОБУЧЕНИЯ (Новый) -->
+    <div id="tutorial-overlay" class="hidden">
+        <div id="tutorial-msg" class="tutorial-tooltip">Нажми сюда!</div>
+    </div>
+
+    <!-- UI СЛОЙ -->
     <div id="ui-layer">
         
         <!-- ЭКРАН 1: Авторизация -->
         <div id="auth-container" class="container">
-            <h1 class="title glitched">JUJUTSU KAISEN</h1>
+            <h1 class="title">JUJUTSU KAISEN</h1>
             <div class="auth-box">
                 <input type="email" id="email" placeholder="Email">
                 <input type="password" id="password" placeholder="Пароль">
@@ -21,42 +26,13 @@
                     <button id="btn-login" class="btn primary">Войти</button>
                     <button id="btn-register" class="btn secondary">Регистрация</button>
                 </div>
-                <div class="divider">или</div>
-                <button id="btn-google" class="btn google">Google</button>
-                <button id="btn-anon" class="btn anon">Аноним</button>
             </div>
             <p id="error-message" class="error"></p>
         </div>
 
-        <!-- ЭКРАН 2: Меню -->
-        <div id="menu-container" class="container hidden">
-            <div class="profile-header">
-                <div class="avatar"></div>
-                <div class="user-info">
-                    <span id="menu-username">Маг</span>
-                    <span id="menu-rank" class="rank">Не маг</span>
-                </div>
-            </div>
-            <div class="menu-buttons">
-                <button id="btn-start-game" class="btn menu-btn start-btn">НАЧАТЬ МИССИЮ</button>
-                <button id="btn-settings" class="btn menu-btn">НАСТРОЙКИ</button>
-                <button id="btn-logout" class="btn menu-btn logout-btn">ВЫЙТИ</button>
-            </div>
-        </div>
-
-        <!-- ЭКРАН: Настройки -->
-        <div id="settings-modal" class="modal hidden">
-            <div class="modal-content">
-                <h2>Настройки</h2>
-                <button id="btn-close-settings" class="btn primary">Закрыть</button>
-                <hr>
-                <button id="btn-reset-progress" class="btn secondary error-btn">СБРОСИТЬ ПРОГРЕСС</button>
-            </div>
-        </div>
-
         <!-- ЭКРАН: История -->
         <div id="story-container" class="container hidden">
-            <h2 id="story-title" class="story-header">Воспоминание</h2>
+            <h2 id="story-title" class="story-header">Сюжет</h2>
             <div class="story-text" id="story-text"></div>
             <div id="choice-container" class="choice-grid hidden"></div>
             <button id="btn-next-story" class="btn secondary">Далее</button>
@@ -67,24 +43,22 @@
             <h1 class="menu-title">ПРОБУЖДЕНИЕ</h1>
             <div class="spin-box">
                 <div id="spin-result" class="spin-result">?</div>
-                <p id="spin-rarity" class="spin-rarity">SPIN</p>
             </div>
-            <p>Попыток: <strong id="spins-left">10</strong></p>
+            <p>Спинов: <strong id="spins-left">10</strong></p>
             <button id="btn-spin" class="btn primary start-btn">КРУТИТЬ</button>
             <button id="btn-accept-spin" class="btn secondary hidden">ПРИНЯТЬ</button>
         </div>
 
-        <!-- ЭКРАН: Статус Игрока -->
+        <!-- ЭКРАН: Главный Хаб (Статус) -->
         <div id="gameplay-container" class="container hidden">
             <h1 class="menu-title">СТАТУС</h1>
             <div class="auth-box status-box">
-                <p>Техника: <strong id="player-class-display" style="color: var(--primary)">-</strong></p>
-                <p>LVL: <strong id="player-lvl-display" style="color: gold">1</strong> <small>/ 500</small></p>
-                <p>Мастерство: <strong id="player-mastery-display" style="color: cyan">0</strong> <small>/ 500</small></p>
-                <p>Опыт: <span id="player-xp-display">0</span></p>
+                <p>Имя: <strong id="player-class-display">-</strong></p>
+                <p>LVL: <strong id="player-lvl-display" style="color: gold">1</strong></p>
             </div>
             <div class="menu-buttons" style="margin-top: 20px;">
-                <button id="btn-training" class="btn primary">ТРЕНИРОВКА (БОЙ)</button>
+                <!-- Эту кнопку мы будем подсвечивать -->
+                <button id="btn-training" class="btn primary">ТРЕНИРОВКА</button> 
                 <button id="btn-back-to-menu" class="btn secondary">Меню</button>
             </div>
         </div>
@@ -96,7 +70,7 @@
                 <div>Mastery: <span id="train-mastery">0</span></div>
             </div>
 
-            <!-- 3D СЦЕНА -->
+            <!-- 3D Сцена -->
             <div class="scene">
                 <div class="cube" id="dummy-cube">
                     <div class="face front">👁️</div>
@@ -106,16 +80,12 @@
                     <div class="face top">🧠</div>
                     <div class="face bottom">🦶</div>
                 </div>
-                <div class="floor"></div>
             </div>
 
             <div class="hud-bottom">
-                <button id="btn-hit-dummy" class="btn primary hit-btn">УДАР (TAP)</button>
-                
-                <div id="skills-panel" class="skills-panel">
-                    <!-- Скиллы -->
-                </div>
-
+                <!-- Кнопки для обучения -->
+                <button id="btn-hit-dummy" class="btn primary hit-btn">УДАР</button>
+                <div id="skills-panel" class="skills-panel"></div>
                 <button id="btn-exit-training" class="btn secondary small-btn">ВЫХОД</button>
             </div>
         </div>
