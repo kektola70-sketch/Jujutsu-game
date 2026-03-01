@@ -3,43 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jujutsu Game - Login</title>
+    <title>Jujutsu Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Экран авторизации -->
+    <!-- ЭКРАН 1: Авторизация -->
     <div id="auth-container" class="container">
-        <h1>Jujutsu Kaisen Game</h1>
-        <p>Добро пожаловать в техникум магии</p>
+        <h1 class="title">Jujutsu Kaisen</h1>
+        <p class="subtitle">Вход в мир магии</p>
         
         <div class="auth-box">
-            <input type="email" id="email" placeholder="Email мага">
+            <input type="email" id="email" placeholder="Email шамана">
             <input type="password" id="password" placeholder="Пароль">
             
-            <div class="buttons">
+            <div class="buttons-row">
                 <button id="btn-login" class="btn primary">Войти</button>
                 <button id="btn-register" class="btn secondary">Регистрация</button>
             </div>
 
-            <hr>
+            <div class="divider">или</div>
             
-            <button id="btn-google" class="btn google">Войти через Google</button>
-            <button id="btn-anon" class="btn anon">Войти анонимно (Рёмен Сукуна?)</button>
+            <button id="btn-google" class="btn google">Google Вход</button>
+            <button id="btn-anon" class="btn anon">Анонимный вход</button>
         </div>
         <p id="error-message" class="error"></p>
     </div>
 
-    <!-- Экран игры (появится после входа) -->
-    <div id="game-container" class="container hidden">
-        <h1>Профиль Шамана</h1>
-        <p>Привет, <span id="user-display"></span>!</p>
-        <p>UID: <small id="user-uid"></small></p>
-        
-        <button id="btn-logout" class="btn logout">Выйти</button>
+    <!-- ЭКРАН 2: Главное Меню -->
+    <div id="menu-container" class="container hidden">
+        <div class="profile-header">
+            <div class="avatar"></div>
+            <div class="user-info">
+                <span id="menu-username">Шаман</span>
+                <span class="rank">Ранг: 4</span>
+            </div>
+        </div>
+
+        <h1 class="menu-title">ГЛАВНОЕ МЕНЮ</h1>
+
+        <div class="menu-buttons">
+            <button id="btn-start-game" class="btn menu-btn start-btn">НАЧАТЬ МИССИЮ</button>
+            <button id="btn-settings" class="btn menu-btn">НАСТРОЙКИ</button>
+            <button id="btn-logout" class="btn menu-btn logout-btn">ВЫЙТИ ИЗ СИСТЕМЫ</button>
+        </div>
     </div>
 
-    <!-- Подключаем скрипт как модуль -->
+    <!-- ЭКРАН 3: Игра (Заглушка) -->
+    <div id="gameplay-container" class="container hidden">
+        <h1>БИТВА</h1>
+        <p>Здесь будет происходить сражение...</p>
+        <button id="btn-back-to-menu" class="btn secondary">Сбежать в меню</button>
+    </div>
+
+    <!-- Скрипты -->
     <script type="module" src="main.js"></script>
 </body>
 </html>
